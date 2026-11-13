@@ -69,6 +69,7 @@ function Index() {
 }
 
 function ImportedHeader() {
+  const mobileToggleRef = useRef<HTMLButtonElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
   const [mobileServiceGroup, setMobileServiceGroup] = useState<string | null>(null);
@@ -199,6 +200,7 @@ function ImportedHeader() {
         if (event.key === "Escape") {
           closeMobileMenu();
           setDesktopMenu(null);
+          if (mobileOpen) mobileToggleRef.current?.focus();
         }
       }}
     >
@@ -222,15 +224,15 @@ function ImportedHeader() {
               <div className="grid grid-cols-[18rem_1fr] gap-2">
                 <div className={"max-h-[70vh] overflow-y-auto rounded-lg \x62order \x62order-border/\x360 p-1"}>
                   <a className={"mb-1 block rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors \x68over:\x62g-muted"} href="/#services">All Services</a>
-                  {serviceGroups.map((group) => (
+                {serviceGroups.map((group) => (
                     <div className="mb-1" key={group.id}>
-                      <button aria-expanded={desktopServiceGroup === group.id} className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase text-muted-foreground transition-colors hover:bg-muted" type="button" onClick={() => setDesktopServiceGroup((current) => current === group.id ? null : group.id)}>
+                      <button aria-expanded={desktopServiceGroup === group.id} aria-controls={`desktop-services-${group.id}`} className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase text-muted-foreground transition-colors hover:bg-muted" type="button" onClick={() => setDesktopServiceGroup((current) => current === group.id ? null : group.id)}>
                         {group.label}<svg className="transition-transform" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
                       </button>
                     </div>
                   ))}
                 </div>
-                <div className={"min-h-[14rem] rounded-lg \x62order \x62order-border/\x360 p-1"}>
+                <div id={desktopServiceGroup ? `desktop-services-${desktopServiceGroup}` : "desktop-services-selection"} className={"min-h-[14rem] rounded-lg \x62order \x62order-border/\x360 p-1"}>
                   {desktopServiceGroup ? <div className="max-h-[70vh] overflow-y-auto">{renderServiceLinks(desktopServiceGroup)}</div> : <p className="px-3 py-2 text-sm text-muted-foreground">Select a service group to view items.</p>}
                 </div>
               </div>
@@ -255,7 +257,7 @@ function ImportedHeader() {
         <div className={"hidden flex-shrink-0 items-center gap-6 \x6dd:\x66lex"}>
           <a className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground" href="https://portal.murban-eng.com/#/" rel="noopener noreferrer" target="_blank">Portal</a>
         </div>
-        <button className="rounded-md p-1 text-foreground transition-colors hover:text-primary md:hidden" type="button" aria-label={mobileOpen ? "Close menu" : "Toggle menu"} aria-expanded={mobileOpen} aria-controls="mobile-navigation" onClick={() => setMobileOpen((open) => !open)}>
+        <button ref={mobileToggleRef} className="rounded-md p-1 text-foreground transition-colors hover:text-primary md:hidden" type="button" aria-label={mobileOpen ? "Close menu" : "Toggle menu"} aria-expanded={mobileOpen} aria-controls="mobile-navigation" onClick={() => setMobileOpen((open) => !open)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             {mobileOpen ? <path d="m18 6-12 12M6 6l12 12" /> : <><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></>}
           </svg>
@@ -273,8 +275,8 @@ function ImportedHeader() {
             <a className="block rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground" href="/#services" onClick={closeMobileMenu}>All Services</a>
             {serviceGroups.map((group) => (
               <div key={group.id}>
-                <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-semibold text-foreground hover:bg-muted" type="button" aria-expanded={mobileServiceGroup === group.id} onClick={() => setMobileServiceGroup((current) => current === group.id ? null : group.id)}>{group.label}<ChevronIcon /></button>
-                {mobileServiceGroup === group.id && <div className="ml-3 border-l border-border pl-2">{renderServiceLinks(group.id)}</div>}
+                <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-semibold text-foreground hover:bg-muted" type="button" aria-expanded={mobileServiceGroup === group.id} aria-controls={`mobile-services-${group.id}`} onClick={() => setMobileServiceGroup((current) => current === group.id ? null : group.id)}>{group.label}<ChevronIcon /></button>
+                {mobileServiceGroup === group.id && <div id={`mobile-services-${group.id}`} className="ml-3 border-l border-border pl-2">{renderServiceLinks(group.id)}</div>}
               </div>
             ))}
           </div>}
