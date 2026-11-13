@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, RefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import capturedCSS from "../styles/site.css?raw";
@@ -53,6 +53,7 @@ function Index() {
         </section>
         <ImportedSectionContactUs />
         <ImportedFooterMURBANENGINEERINGLTD
+          privacyOpen={privacyOpen}
           privacyTriggerRef={privacyTriggerRef}
           onOpenPrivacy={() => setPrivacyOpen(true)}
         />
@@ -1812,10 +1813,12 @@ function ImportedSectionContactUs() {
 
 function ImportedFooterMURBANENGINEERINGLTD({
   onOpenPrivacy,
+  privacyOpen,
   privacyTriggerRef,
 }: {
   onOpenPrivacy: () => void;
-  privacyTriggerRef: React.RefObject<HTMLButtonElement | null>;
+  privacyOpen: boolean;
+  privacyTriggerRef: RefObject<HTMLButtonElement | null>;
 }) {
   return (
     <footer className="bg-neutral-200">
@@ -1938,7 +1941,7 @@ function ImportedFooterMURBANENGINEERINGLTD({
           </div>
         </div>
         <div className={"mt-10 \x62order-t \x62order-black/\x310 pt-8 md:mt-14 md:pt-10"}>
-          <button ref={privacyTriggerRef} className="text-sm font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary md:text-base" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="privacy-policy-dialog" onClick={onOpenPrivacy}>Privacy Policy</button>
+          <button ref={privacyTriggerRef} className="text-sm font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary md:text-base" type="button" aria-haspopup="dialog" aria-expanded={privacyOpen} aria-controls="privacy-policy-dialog" onClick={onOpenPrivacy}>Privacy Policy</button>
         </div>
       </div>
     </footer>
@@ -1952,15 +1955,12 @@ function PrivacyPolicyDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  triggerRef: React.RefObject<HTMLButtonElement | null>;
+  triggerRef: RefObject<HTMLButtonElement | null>;
 }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!open) {
-      triggerRef.current?.focus();
-      return;
-    }
+    if (!open) return;
 
     closeButtonRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1989,7 +1989,10 @@ function PrivacyPolicyDialog({
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      triggerRef.current?.focus();
+    };
   }, [onClose, open, triggerRef]);
 
   if (!open) return null;
