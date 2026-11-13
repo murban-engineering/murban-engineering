@@ -1,5 +1,5 @@
 import type { CSSProperties, RefObject } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import capturedCSS from "../styles/site.css?raw";
 
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const privacyTriggerRef = useRef<HTMLButtonElement>(null);
+  const closePrivacy = useCallback(() => setPrivacyOpen(false), []);
 
   return (
     <>
@@ -60,7 +61,7 @@ function Index() {
       </main>
       <PrivacyPolicyDialog
         open={privacyOpen}
-        onClose={() => setPrivacyOpen(false)}
+        onClose={closePrivacy}
         triggerRef={privacyTriggerRef}
       />
     </>
@@ -157,7 +158,7 @@ function ImportedHeader() {
     setMobileServiceGroup(null);
   };
 
-  const renderServiceLinks = (groupId: (typeof serviceGroups)[number]["id"]) => {
+  const renderServiceLinks = (groupId: string) => {
     const group = serviceGroups.find((candidate) => candidate.id === groupId);
     if (!group) return null;
     return group.items.map(([label, href]) => (
