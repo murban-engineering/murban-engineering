@@ -1,14 +1,34 @@
 import type { CSSProperties } from "react";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import capturedCSS from "../styles/site.css?raw";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "MURBAN ENGINEERING LTD" }] }),
-  staticData: { importedDocument: { html: { "lang": "en" }, body: { "className": "\x66ont-sans \x61ntialiased", "data-site-import-popup-incomplete": "observation", "data-site-import-responsive-incomplete": "scroll" } } },
+  head: () => ({
+    meta: [
+      { title: "MURBAN ENGINEERING LTD | Asset Integrity & NDT" },
+      {
+        name: "description",
+        content:
+          "Asset integrity, inspection, and non-destructive testing services across Africa since 2007.",
+      },
+      { property: "og:title", content: "MURBAN ENGINEERING LTD | Asset Integrity & NDT" },
+      {
+        property: "og:description",
+        content:
+          "Asset integrity, inspection, and non-destructive testing services across Africa since 2007.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  staticData: { importedDocument: { html: { "lang": "en" }, body: { "className": "\x66ont-sans \x61ntialiased" } } },
   component: Index,
 });
 
 function Index() {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+
   return (
     <>
       <style>{capturedCSS}</style>
@@ -31,70 +51,191 @@ function Index() {
           </div>
         </section>
         <ImportedSectionContactUs />
-        <ImportedFooterMURBANENGINEERINGLTD />
+        <ImportedFooterMURBANENGINEERINGLTD onOpenPrivacy={() => setPrivacyOpen(true)} />
       </main>
+      <PrivacyPolicyDialog open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
     </>
   );
 }
 
 function ImportedHeader() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSection, setMobileSection] = useState<string | null>(null);
+  const [mobileServiceGroup, setMobileServiceGroup] = useState<string | null>(null);
+  const [desktopMenu, setDesktopMenu] = useState<string | null>(null);
+  const [desktopServiceGroup, setDesktopServiceGroup] = useState<string | null>(null);
+
+  const serviceGroups = [
+    {
+      id: "general",
+      label: "General Non-Destructive Testing (NDT)",
+      items: [
+        ["NDT Inspection Services", "/services/ndt-inspection-services/"],
+        ["Ultrasonic Flaw Testing C-Scan", "/services/ultrasonic-flaw-testing-c-scan/"],
+        ["Ultrasonic Flaw Testing B-Scan", "/services/ultrasonic-flaw-testing-b-scan/"],
+        ["UTM Ultrasonic Thickness Measurement", "/services/utm-ultrasonic-thickness-measurement/"],
+        ["Visual Inspection", "/services/visual-inspection/"],
+        ["Magnetic Particle Testing", "/services/magnetic-particle-testing/"],
+        ["Fluorescent Magnet Particle Testing", "/services/fluorescent-magnet-particle-testing/"],
+        ["Dye Penetrant Testing", "/services/dye-penetrant-testing/"],
+        ["RT Radiographic Services", "/services/rt-radiographic-services/"],
+        ["Paint & Coating Inspection", "/services/paint-coating-inspection/"],
+        ["Gas Detection", "/services/gas-detection/"],
+        ["Pressure Testing", "/services/pressure-testing/"],
+        ["Surface Hardness Testing", "/services/surface-hardness-testing/"],
+      ],
+    },
+    {
+      id: "advanced",
+      label: "Advanced NDT & Specialised Technologies",
+      items: [
+        ["Tank Calibration Services", "/services/tank-calibration-services/"],
+        ["Phased Array Testing", "/services/phased-array-testing/"],
+        ["3D Laser Scanning Services", "/services/3d-laser-scanning-services/"],
+        ["Thermal Camera Inspection", "/services/thermal-camera-inspection/"],
+        ["Alternating Current Field Measurement", "/services/alternating-current-field-measurement/"],
+        ["Floormap 3D MFL Scanning", "/services/floormap-3d-mfl-scanning/"],
+        ["UAV Inspection", "/services/uav-inspection/"],
+      ],
+    },
+    {
+      id: "certification",
+      label: "Engineering Assessments & Certification",
+      items: [
+        ["API 570 Piping Inspection and Certification", "/services/api-570-piping-inspection-and-certification/"],
+        ["API 653 Aboveground Storage Tank Inspection and Certification", "/services/api-653-aboveground-storage-tank-inspection-and-certification/"],
+        ["API 510 Pressure Vessel Inspection", "/services/api-510-pressure-vessel-inspection/"],
+        ["Positive Material Identification Testing", "/services/positive-material-identification-testing/"],
+        ["API 579 Fitness for Service", "/services/api-579-fitness-for-service/"],
+        ["API 580 Risk Based Inspection", "/services/api-580-risk-based-inspection/"],
+        ["Boiler Inspection Services", "/services/boiler-inspection-services/"],
+        ["Lifting Equipment Thorough Examination and Certification", "/services/lifting-equipment-thorough-examination-and-certification/"],
+        ["Sphere Tank Inspections", "/services/sphere-tank-inspections/"],
+      ],
+    },
+    {
+      id: "fabrication",
+      label: "Engineering & Fabrication",
+      items: [
+        ["Detailed Engineering", "/services/detailed-engineering/"],
+        ["Procurement", "/services/procurement/"],
+        ["Fabrication", "/services/fabrication/"],
+        ["Construction and Erection", "/services/construction-and-erection/"],
+        ["Specialised Welding", "/services/specialised-welding/"],
+        ["Surface Preparation and Paint Works", "/services/surface-preparation-and-paint-works/"],
+      ],
+    },
+  ] as const;
+
+  const industryLinks = [
+    ["Oil & Gas Industry", "/#industry-oil-gas-industry"],
+    ["Power & Steam Generation", "/#industry-power-steam-generation"],
+    ["Storage & Logistics Terminals", "/#industry-storage-logistics-terminals"],
+    ["Food Processing Industry", "/#industry-food-processing-industry"],
+    ["Renewable Energy & Geothermal", "/#industry-renewable-energy-geothermal"],
+    ["Rail Industry", "/#industry-rail-industry"],
+    ["Shipping & Marine Industry", "/#industry-shipping-marine-industry"],
+  ] as const;
+
+  const toggleMobileSection = (section: string) => {
+    setMobileSection((current) => (current === section ? null : section));
+    setMobileServiceGroup(null);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileOpen(false);
+    setMobileSection(null);
+    setMobileServiceGroup(null);
+  };
+
+  const renderServiceLinks = (groupId: (typeof serviceGroups)[number]["id"]) => {
+    const group = serviceGroups.find((candidate) => candidate.id === groupId);
+    if (!group) return null;
+    return group.items.map(([label, href]) => (
+      <a
+        key={href}
+        className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        href={href}
+        onClick={closeMobileMenu}
+      >
+        {label}
+      </a>
+    ));
+  };
+
+  const renderMobileGroup = (section: string, links: readonly (readonly [string, string])[]) => (
+    <div className="ml-4 border-l border-border pl-3">
+      {links.map(([label, href]) => (
+        <a
+          key={href}
+          className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          href={href}
+          onClick={closeMobileMenu}
+        >
+          {label}
+        </a>
+      ))}
+    </div>
+  );
+
+  const desktopMenuClass = (name: string) =>
+    `absolute left-0 top-full z-50 mt-2 rounded-xl border border-border bg-background/95 p-2 opacity-0 shadow-xl backdrop-blur transition-all duration-200 ${desktopMenu === name ? "visible opacity-100" : "invisible"}`;
+
   return (
-    <header className={"fixed top-3 left-1/2 z-50 w-[94%] max-w-3xl \x2dtranslate-x-1/\x32 rounded-2xl md:max-w-5xl \x62g-background/\x390 \x62ackdrop-blur-md transition-all duration-300 sm:top-4 sm:w-[90%] sm:rounded-full"} style={{ boxShadow: "rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px" }}>
-      <div className="flex items-center justify-between px-3 py-2 transition-all duration-300 sm:pl-5">
+    <header
+      className={`fixed left-1/2 top-3 z-50 w-[94%] max-w-3xl -translate-x-1/2 overflow-y-auto rounded-2xl bg-background/90 backdrop-blur-md transition-all duration-300 sm:top-4 sm:w-[90%] sm:rounded-full md:max-w-5xl ${mobileOpen ? "max-h-[calc(100vh-1.5rem)]" : "max-h-[4.5rem]"}`}
+      style={{ boxShadow: "rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px" }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          closeMobileMenu();
+          setDesktopMenu(null);
+        }
+      }}
+    >
+      <div className="flex items-center justify-between border-b border-border/60 px-3 py-2 transition-all duration-300 sm:pl-5 md:border-b-0">
         <a className="flex min-w-0 flex-shrink-0 items-center" aria-label="MURBAN ENGINEERING LTD home" href="/#home">
           <img className="h-auto w-[150px] max-w-[52vw] object-contain sm:w-[170px] md:w-[180px]" style={{ color: "transparent" }} alt="MURBAN ENGINEERING LTD" width="1227" height="345" decoding="async" src="/site-assets/c513441600d26cbd.png" />
         </a>
         <nav className={"hidden min-w-0 flex-1 items-center justify-center gap-5 \x6dd:\x66lex lg:gap-8 xl:gap-10"}>
           <a className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground" href="/#home">Home</a>
-          <div className="group relative">
-            <button className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground inline-flex items-center gap-1" type="button">About<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-            <div className={"invisible absolute left-0 top-full z-50 mt-2 w-56 rounded-xl \x62order \x62order-border \x62g-background/\x395 p-2 opacity-0 \x73hadow-xl \x62ackdrop-blur transition-all duration-200 \x67roup-hover:\x76isible \x67roup-hover:\x6fpacity-100"}>
+          <div className="relative" onMouseEnter={() => setDesktopMenu("about")} onMouseLeave={() => setDesktopMenu(null)}>
+            <button aria-expanded={desktopMenu === "about"} className="inline-flex items-center gap-1 whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground" type="button" onClick={() => setDesktopMenu((current) => current === "about" ? null : "about")}>About<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
+            <div className={`${desktopMenuClass("about")} w-56`}>
               <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#about">About</a>
               <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#who-we-are">Who We Are</a>
               <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#where-we-work">Where We Work</a>
             </div>
           </div>
-          <div className="group relative">
-            <button className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground inline-flex items-center gap-1" type="button">Services<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-            <div className={"invisible absolute left-0 top-full z-50 mt-2 w-[44rem] rounded-xl \x62order \x62order-border \x62g-background/\x395 p-2 opacity-0 \x73hadow-xl \x62ackdrop-blur transition-all duration-200 \x67roup-hover:\x76isible \x67roup-hover:\x6fpacity-100"}>
+          <div className="relative" onMouseEnter={() => setDesktopMenu("services")} onMouseLeave={() => setDesktopMenu(null)}>
+            <button aria-expanded={desktopMenu === "services"} className="inline-flex items-center gap-1 whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground" type="button" onClick={() => setDesktopMenu((current) => current === "services" ? null : "services")}>Services<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
+            <div className={`${desktopMenuClass("services")} w-[44rem]`}>
               <div className="grid grid-cols-[18rem_1fr] gap-2">
                 <div className={"max-h-[70vh] overflow-y-auto rounded-lg \x62order \x62order-border/\x360 p-1"}>
                   <a className={"mb-1 block rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors \x68over:\x62g-muted"} href="/#services">All Services</a>
-                  <div className="mb-1">
-                    <button className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors \x68over:\x62g-muted"} type="button">General Non-Destructive Testing (NDT)<svg className="transition-transform" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-                  </div>
-                  <div className="mb-1">
-                    <button className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors \x68over:\x62g-muted"} type="button">Advanced NDT &amp; Specialised Technologies<svg className="transition-transform" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-                  </div>
-                  <div className="mb-1">
-                    <button className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors \x68over:\x62g-muted"} type="button">Engineering Assessments &amp; Certification<svg className="transition-transform" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-                  </div>
-                  <div className="mb-1">
-                    <button className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors \x68over:\x62g-muted"} type="button">Engineering &amp; Fabrication<svg className="transition-transform" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-                  </div>
+                  {serviceGroups.map((group) => (
+                    <div className="mb-1" key={group.id}>
+                      <button aria-expanded={desktopServiceGroup === group.id} className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase text-muted-foreground transition-colors hover:bg-muted" type="button" onClick={() => setDesktopServiceGroup((current) => current === group.id ? null : group.id)}>
+                        {group.label}<svg className="transition-transform" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                      </button>
+                    </div>
+                  ))}
                 </div>
                 <div className={"min-h-[14rem] rounded-lg \x62order \x62order-border/\x360 p-1"}>
-                  <p className="px-3 py-2 text-sm text-muted-foreground">Select a service group to view items.</p>
+                  {desktopServiceGroup ? <div className="max-h-[70vh] overflow-y-auto">{renderServiceLinks(desktopServiceGroup)}</div> : <p className="px-3 py-2 text-sm text-muted-foreground">Select a service group to view items.</p>}
                 </div>
               </div>
             </div>
           </div>
-          <div className="group relative">
-            <button className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground inline-flex items-center gap-1" type="button">Industries<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-            <div className={"invisible absolute left-0 top-full z-50 mt-2 w-72 rounded-xl \x62order \x62order-border \x62g-background/\x395 p-2 opacity-0 \x73hadow-xl \x62ackdrop-blur transition-all duration-200 \x67roup-hover:\x76isible \x67roup-hover:\x6fpacity-100"}>
+          <div className="relative" onMouseEnter={() => setDesktopMenu("industries")} onMouseLeave={() => setDesktopMenu(null)}>
+            <button aria-expanded={desktopMenu === "industries"} className="inline-flex items-center gap-1 whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground" type="button" onClick={() => setDesktopMenu((current) => current === "industries" ? null : "industries")}>Industries<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
+            <div className={`${desktopMenuClass("industries")} w-72`}>
               <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industries">All Industries</a>
-              <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industry-oil-gas-industry">Oil &amp; Gas Industry</a>
-              <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industry-power-steam-generation">Power &amp; Steam Generation</a>
-              <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industry-storage-logistics-terminals">Storage &amp; Logistics Terminals</a>
-              <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industry-food-processing-industry">Food Processing Industry</a>
-              <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industry-renewable-energy-geothermal">Renewable Energy &amp; Geothermal</a>
-              <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industry-rail-industry">Rail Industry</a>
-              <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#industry-shipping-marine-industry">Shipping &amp; Marine Industry</a>
+              {industryLinks.map(([label, href]) => <a key={href} className="block rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted" href={href}>{label}</a>)}
             </div>
           </div>
-          <div className="group relative">
-            <button className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground inline-flex items-center gap-1" type="button">Our Projects<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
-            <div className={"invisible absolute left-0 top-full z-50 mt-2 w-56 rounded-xl \x62order \x62order-border \x62g-background/\x395 p-2 opacity-0 \x73hadow-xl \x62ackdrop-blur transition-all duration-200 \x67roup-hover:\x76isible \x67roup-hover:\x6fpacity-100"}>
+          <div className="relative" onMouseEnter={() => setDesktopMenu("projects")} onMouseLeave={() => setDesktopMenu(null)}>
+            <button aria-expanded={desktopMenu === "projects"} className="inline-flex items-center gap-1 whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground" type="button" onClick={() => setDesktopMenu((current) => current === "projects" ? null : "projects")}>Our Projects<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></button>
+            <div className={`${desktopMenuClass("projects")} w-56`}>
               <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#our-projects">Our Projects</a>
               <a className={"block rounded-lg px-3 py-2 text-sm text-foreground transition-colors \x68over:\x62g-muted"} href="/#projects-video">Projects Video</a>
             </div>
@@ -104,16 +245,47 @@ function ImportedHeader() {
         <div className={"hidden flex-shrink-0 items-center gap-6 \x6dd:\x66lex"}>
           <a className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground" href="https://portal.murban-eng.com/#/" rel="noopener noreferrer" target="_blank">Portal</a>
         </div>
-        <button className={"rounded-md p-1 text-foreground transition-colors \x68over:\x74ext-[#\x4160D0F] \x6dd:\x68idden"} type="button" aria-label="Toggle menu">
+        <button className="rounded-md p-1 text-foreground transition-colors hover:text-primary md:hidden" type="button" aria-label={mobileOpen ? "Close menu" : "Toggle menu"} aria-expanded={mobileOpen} aria-controls="mobile-navigation" onClick={() => setMobileOpen((open) => !open)}>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" x2="20" y1="12" y2="12" />
-            <line x1="4" x2="20" y1="6" y2="6" />
-            <line x1="4" x2="20" y1="18" y2="18" />
+            {mobileOpen ? <path d="m18 6-12 12M6 6l12 12" /> : <><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></>}
           </svg>
         </button>
       </div>
+      <nav id="mobile-navigation" aria-label="Mobile navigation" className={`space-y-1 px-3 pb-4 pt-3 md:hidden ${mobileOpen ? "block" : "hidden"}`}>
+        <a className="block rounded-md px-3 py-2 text-base text-foreground hover:bg-muted" href="/#home" onClick={closeMobileMenu}>Home</a>
+        <div>
+          <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "about"} onClick={() => toggleMobileSection("about")}>About<ChevronIcon /></button>
+          {mobileSection === "about" && renderMobileGroup("about", [["About", "/#about"], ["Who We Are", "/#who-we-are"], ["Where We Work", "/#where-we-work"]])}
+        </div>
+        <div>
+          <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "services"} onClick={() => toggleMobileSection("services")}>Services<ChevronIcon /></button>
+          {mobileSection === "services" && <div className="ml-4 border-l border-border pl-3">
+            <a className="block rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground" href="/#services" onClick={closeMobileMenu}>All Services</a>
+            {serviceGroups.map((group) => (
+              <div key={group.id}>
+                <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-semibold text-foreground hover:bg-muted" type="button" aria-expanded={mobileServiceGroup === group.id} onClick={() => setMobileServiceGroup((current) => current === group.id ? null : group.id)}>{group.label}<ChevronIcon /></button>
+                {mobileServiceGroup === group.id && <div className="ml-3 border-l border-border pl-2">{renderServiceLinks(group.id)}</div>}
+              </div>
+            ))}
+          </div>}
+        </div>
+        <div>
+          <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "industries"} onClick={() => toggleMobileSection("industries")}>Industries<ChevronIcon /></button>
+          {mobileSection === "industries" && renderMobileGroup("industries", [["All Industries", "/#industries"], ...industryLinks])}
+        </div>
+        <div>
+          <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "projects"} onClick={() => toggleMobileSection("projects")}>Our Projects<ChevronIcon /></button>
+          {mobileSection === "projects" && renderMobileGroup("projects", [["Our Projects", "/#our-projects"], ["Projects Video", "/#projects-video"]])}
+        </div>
+        <a className="block rounded-md px-3 py-2 text-base text-foreground hover:bg-muted" href="/#contact-us" onClick={closeMobileMenu}>Contact</a>
+        <a className="block rounded-md px-3 py-2 text-base text-foreground hover:bg-muted" href="https://portal.murban-eng.com/#/" target="_blank" rel="noopener noreferrer">Portal</a>
+      </nav>
     </header>
   );
+}
+
+function ChevronIcon() {
+  return <svg className="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>;
 }
 
 function ImportedSection() {
