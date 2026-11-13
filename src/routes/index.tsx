@@ -1,7 +1,7 @@
 import type { CSSProperties, RefObject } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import capturedCSS from "../styles/site.css?raw";
+import importedStyles from "../styles/site.css";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,7 +33,7 @@ function Index() {
 
   return (
     <>
-      <style>{capturedCSS}</style>
+      <div className="murban-site">
       <div hidden />
       <main className={"min-h-screen \x62g-background"}>
         <ImportedHeader />
@@ -59,6 +59,7 @@ function Index() {
           onOpenPrivacy={() => setPrivacyOpen(true)}
         />
       </main>
+      </div>
       <PrivacyPolicyDialog
         open={privacyOpen}
         onClose={closePrivacy}
