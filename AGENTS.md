@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Imported homepage structure
+
+- Keep the Murban homepage in `src/routes/index.tsx` and load its captured stylesheet as CSS; scope imported-page overflow/layout repairs beneath `.murban-site` so other route shells remain unaffected.
