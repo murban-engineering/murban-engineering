@@ -226,13 +226,13 @@ function ImportedHeader() {
                   <a className={"mb-1 block rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors \x68over:\x62g-muted"} href="/#services">All Services</a>
                 {serviceGroups.map((group) => (
                     <div className="mb-1" key={group.id}>
-                      <button aria-expanded={desktopServiceGroup === group.id} aria-controls={`desktop-services-${group.id}`} className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase text-muted-foreground transition-colors hover:bg-muted" type="button" onClick={() => setDesktopServiceGroup((current) => current === group.id ? null : group.id)}>
+                      <button aria-expanded={desktopServiceGroup === group.id} aria-controls="desktop-service-items" className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase text-muted-foreground transition-colors hover:bg-muted" type="button" onClick={() => setDesktopServiceGroup((current) => current === group.id ? null : group.id)}>
                         {group.label}<svg className="transition-transform" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
                       </button>
                     </div>
                   ))}
                 </div>
-                <div id={desktopServiceGroup ? `desktop-services-${desktopServiceGroup}` : "desktop-services-selection"} className={"min-h-[14rem] rounded-lg \x62order \x62order-border/\x360 p-1"}>
+                <div id="desktop-service-items" className={"min-h-[14rem] rounded-lg \x62order \x62order-border/\x360 p-1"}>
                   {desktopServiceGroup ? <div className="max-h-[70vh] overflow-y-auto">{renderServiceLinks(desktopServiceGroup)}</div> : <p className="px-3 py-2 text-sm text-muted-foreground">Select a service group to view items.</p>}
                 </div>
               </div>
@@ -276,7 +276,7 @@ function ImportedHeader() {
             {serviceGroups.map((group) => (
               <div key={group.id}>
                 <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-semibold text-foreground hover:bg-muted" type="button" aria-expanded={mobileServiceGroup === group.id} aria-controls={`mobile-services-${group.id}`} onClick={() => setMobileServiceGroup((current) => current === group.id ? null : group.id)}>{group.label}<ChevronIcon /></button>
-                {mobileServiceGroup === group.id && <div id={`mobile-services-${group.id}`} className="ml-3 border-l border-border pl-2">{renderServiceLinks(group.id)}</div>}
+                <div id={`mobile-services-${group.id}`} className="ml-3 border-l border-border pl-2" hidden={mobileServiceGroup !== group.id}>{renderServiceLinks(group.id)}</div>
               </div>
             ))}
           </div>}
