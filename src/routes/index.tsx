@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import capturedCSS from "../styles/site.css?raw";
 
@@ -163,7 +163,7 @@ function ImportedHeader() {
     ));
   };
 
-  const renderMobileGroup = (section: string, links: readonly (readonly [string, string])[]) => (
+  const renderMobileGroup = (links: readonly (readonly [string, string])[]) => (
     <div className="ml-4 border-l border-border pl-3">
       {links.map(([label, href]) => (
         <a
@@ -183,7 +183,7 @@ function ImportedHeader() {
 
   return (
     <header
-      className={`fixed left-1/2 top-3 z-50 w-[94%] max-w-3xl -translate-x-1/2 overflow-y-auto rounded-2xl bg-background/90 backdrop-blur-md transition-all duration-300 sm:top-4 sm:w-[90%] sm:rounded-full md:max-w-5xl ${mobileOpen ? "max-h-[calc(100vh-1.5rem)]" : "max-h-[4.5rem]"}`}
+      className={`fixed left-1/2 top-3 z-50 w-[94%] max-w-3xl -translate-x-1/2 overflow-y-auto rounded-2xl bg-background/90 backdrop-blur-md transition-all duration-300 sm:top-4 sm:w-[90%] sm:rounded-full md:max-h-none md:max-w-5xl md:overflow-visible ${mobileOpen ? "max-h-[calc(100vh-1.5rem)]" : "max-h-[4.5rem]"}`}
       style={{ boxShadow: "rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px" }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
@@ -255,7 +255,7 @@ function ImportedHeader() {
         <a className="block rounded-md px-3 py-2 text-base text-foreground hover:bg-muted" href="/#home" onClick={closeMobileMenu}>Home</a>
         <div>
           <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "about"} onClick={() => toggleMobileSection("about")}>About<ChevronIcon /></button>
-          {mobileSection === "about" && renderMobileGroup("about", [["About", "/#about"], ["Who We Are", "/#who-we-are"], ["Where We Work", "/#where-we-work"]])}
+          {mobileSection === "about" && renderMobileGroup([["About", "/#about"], ["Who We Are", "/#who-we-are"], ["Where We Work", "/#where-we-work"]])}
         </div>
         <div>
           <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "services"} onClick={() => toggleMobileSection("services")}>Services<ChevronIcon /></button>
@@ -271,11 +271,11 @@ function ImportedHeader() {
         </div>
         <div>
           <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "industries"} onClick={() => toggleMobileSection("industries")}>Industries<ChevronIcon /></button>
-          {mobileSection === "industries" && renderMobileGroup("industries", [["All Industries", "/#industries"], ...industryLinks])}
+          {mobileSection === "industries" && renderMobileGroup([["All Industries", "/#industries"], ...industryLinks])}
         </div>
         <div>
           <button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-base text-foreground hover:bg-muted" type="button" aria-expanded={mobileSection === "projects"} onClick={() => toggleMobileSection("projects")}>Our Projects<ChevronIcon /></button>
-          {mobileSection === "projects" && renderMobileGroup("projects", [["Our Projects", "/#our-projects"], ["Projects Video", "/#projects-video"]])}
+          {mobileSection === "projects" && renderMobileGroup([["Our Projects", "/#our-projects"], ["Projects Video", "/#projects-video"]])}
         </div>
         <a className="block rounded-md px-3 py-2 text-base text-foreground hover:bg-muted" href="/#contact-us" onClick={closeMobileMenu}>Contact</a>
         <a className="block rounded-md px-3 py-2 text-base text-foreground hover:bg-muted" href="https://portal.murban-eng.com/#/" target="_blank" rel="noopener noreferrer">Portal</a>
