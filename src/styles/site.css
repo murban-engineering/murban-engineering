@@ -1945,6 +1945,9 @@
 }
 .trusted-marquee { gap: 1rem; width: max-content; animation: 30s linear 0s infinite normal none running trusted-marquee-scroll; display: flex; }
 .trusted-marquee-reverse { animation-direction: reverse; }
+.murban-site { width: 100%; overflow-x: clip; isolation: isolate; }
+.murban-site .trusted-marquee { max-width: 100%; }
+.murban-site #our-projects > div > div { max-width: 100%; overflow-x: auto; }
 @property --tw-translate-x { syntax: "*"; inherits: false; initial-value: 0; }
 @property --tw-translate-y { syntax: "*"; inherits: false; initial-value: 0; }
 @property --tw-translate-z { syntax: "*"; inherits: false; initial-value: 0; }
