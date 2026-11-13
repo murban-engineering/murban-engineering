@@ -1,7 +1,7 @@
 import type { CSSProperties, RefObject } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import importedStyles from "../styles/site.css";
+import "../styles/site.css";
 
 export const Route = createFileRoute("/")({
   head: () => ({
