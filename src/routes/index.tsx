@@ -1803,6 +1803,7 @@ function ImportedSectionContactUs() {
 }
 
 function ImportedFooterMURBANENGINEERINGLTD() {
+  const [onOpenPrivacy] = useState<() => void>(() => () => undefined);
   return (
     <footer className="bg-neutral-200">
       <div className="px-6 py-12 md:px-12 md:py-14 lg:px-20">
