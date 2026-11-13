@@ -28,6 +28,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const privacyTriggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
@@ -1809,8 +1810,13 @@ function ImportedSectionContactUs() {
   );
 }
 
-function ImportedFooterMURBANENGINEERINGLTD() {
-  const [onOpenPrivacy] = useState<() => void>(() => () => undefined);
+function ImportedFooterMURBANENGINEERINGLTD({
+  onOpenPrivacy,
+  privacyTriggerRef,
+}: {
+  onOpenPrivacy: () => void;
+  privacyTriggerRef: React.RefObject<HTMLButtonElement | null>;
+}) {
   return (
     <footer className="bg-neutral-200">
       <div className="px-6 py-12 md:px-12 md:py-14 lg:px-20">
@@ -1932,9 +1938,135 @@ function ImportedFooterMURBANENGINEERINGLTD() {
           </div>
         </div>
         <div className={"mt-10 \x62order-t \x62order-black/\x310 pt-8 md:mt-14 md:pt-10"}>
-          <button className={"text-sm font-medium text-black underline \x75nderline-offset-4 transition-colors \x68over:\x74ext-black/\x370 md:text-base"} type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-_R_5lbrb_" data-state="closed" data-slot="dialog-trigger">Privacy Policy</button>
+          <button ref={privacyTriggerRef} className="text-sm font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary md:text-base" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="privacy-policy-dialog" onClick={onOpenPrivacy}>Privacy Policy</button>
         </div>
       </div>
     </footer>
+  );
+}
+
+function PrivacyPolicyDialog({
+  open,
+  onClose,
+  triggerRef,
+}: {
+  open: boolean;
+  onClose: () => void;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
+}) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      triggerRef.current?.focus();
+      return;
+    }
+
+    closeButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        const dialog = document.getElementById("privacy-policy-dialog");
+        const focusable = dialog?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        const first = focusable?.item(0);
+        const last = focusable?.item((focusable.length ?? 1) - 1);
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose, open, triggerRef]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/55 p-4 backdrop-blur-[2px]"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        id="privacy-policy-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="privacy-policy-title"
+        className="relative max-h-[min(82vh,52rem)] w-full max-w-xl overflow-y-auto bg-background text-foreground shadow-2xl"
+      >
+        <div className="relative h-48 overflow-hidden md:h-64">
+          <img
+            className="h-full w-full object-cover"
+            src="/site-assets/industrial-refinery.jpg"
+            alt="Industrial refinery representing secure engineering operations"
+          />
+          <div className="absolute inset-0 bg-foreground/40" />
+          <p className="absolute bottom-5 left-6 text-xs uppercase text-background md:text-sm">
+            Industry-grade privacy commitment
+          </p>
+        </div>
+        <button
+          ref={closeButtonRef}
+          className="absolute right-4 top-4 z-10 rounded-sm bg-background/80 p-1 text-foreground transition-colors hover:bg-background"
+          type="button"
+          aria-label="Close privacy policy"
+          onClick={onClose}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+        <div className="space-y-6 px-6 pb-8 pt-6 md:px-8">
+          <header>
+            <h2 id="privacy-policy-title" className="text-2xl font-semibold md:text-3xl">
+              Protecting your information and building trust
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-base">
+              MURBAN ENGINEERING LTD Services safeguards client and partner information with the same rigor we apply to our inspection and engineering assignments. This policy outlines how we collect, store, and use personal data in line with applicable regulations and our commitment to transparency.
+            </p>
+          </header>
+          <section>
+            <h3 className="font-semibold">Information we collect</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-base">
+              We collect details provided through contact forms, project onboarding, and training registrations. This may include contact names, company information, email addresses, phone numbers, and documentation relevant to service delivery.
+            </p>
+          </section>
+          <section>
+            <h3 className="font-semibold">How we use your data</h3>
+            <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground md:text-base">
+              <li>Delivering inspection and engineering services.</li>
+              <li>Coordinating training, certification, and compliance reporting.</li>
+              <li>Responding to enquiries and providing project updates.</li>
+              <li>Improving our offerings through aggregated insights.</li>
+            </ul>
+          </section>
+          <section>
+            <h3 className="font-semibold">Your privacy choices</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-base">
+              You can request access to, correction of, or deletion of your personal data by contacting our team at{" "}
+              <a className="font-medium text-foreground underline underline-offset-4" href="mailto:info@murban-eng.com">info@murban-eng.com</a>. We respond promptly and transparently to all privacy-related requests.
+            </p>
+          </section>
+          <section>
+            <h3 className="font-semibold">Staying informed</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-base">
+              We update this policy as regulations evolve or our service delivery processes change. Significant updates are highlighted on this page, and we encourage you to review it periodically.
+            </p>
+          </section>
+        </div>
+      </section>
+    </div>
   );
 }
