@@ -51,9 +51,16 @@ function Index() {
           </div>
         </section>
         <ImportedSectionContactUs />
-        <ImportedFooterMURBANENGINEERINGLTD onOpenPrivacy={() => setPrivacyOpen(true)} />
+        <ImportedFooterMURBANENGINEERINGLTD
+          privacyTriggerRef={privacyTriggerRef}
+          onOpenPrivacy={() => setPrivacyOpen(true)}
+        />
       </main>
-      <PrivacyPolicyDialog open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+      <PrivacyPolicyDialog
+        open={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+        triggerRef={privacyTriggerRef}
+      />
     </>
   );
 }
