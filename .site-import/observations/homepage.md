@@ -25,7 +25,7 @@ Compared at 1280×1800 and 390×844. Source and preview were inspected using fre
 | `/` | Desktop 1280×1800 | Top | Hover Services then General NDT | List of General NDT service links | 13 matching links appear | Pass: `screenshots/desktop-services-menu.png` |
 | `/` | Phone 390×844 | Top | Open menu > Services > General NDT | Nested service links | Items appear, including NDT Inspection Services and Pressure Testing | Pass: `screenshots/phone-service-menu.png` |
 | `/` | Phone 390×844 | Top | Select NDT Inspection Services | Preserve its same-site path on the preview origin | Reaches `/services/ndt-inspection-services`; route is not imported and correctly returns not found | Partial: destination preserved, page unavailable in this single-page import |
-| `/` | Desktop | Top then `#services` | Explore Services | Jump to Services section | URL becomes `/#services`; section anchor exists | Pass: `screenshots/fixed-desktop-services-cta.png` |
+| `/` | Desktop | Top then `#services` | Explore Services | Jump to Services section | URL becomes `/#services`; section anchor exists | Pass: `screenshots/desktop-services-cta.png` |
 | `/` | Desktop | Footer | Privacy Policy | Open full privacy details | Dialog with policy, local refinery photo, close button | Pass: `screenshots/desktop-privacy-open.png` |
 | `/` | Desktop | Footer | Escape / Close privacy policy | Close and return focus to trigger | Dialog closes and focus returns | Pass: Playwright interaction check |
 | `/` | Desktop/phone | Projects / `#projects-video` | Main media | Playing video and pause control | Captured still image only | Blocked: static fallback; no video playback to verify |
