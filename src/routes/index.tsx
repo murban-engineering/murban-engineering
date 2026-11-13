@@ -33,7 +33,7 @@ function Index() {
 
   return (
     <>
-      <div className="murban-site overflow-x-clip">
+      <div className="murban-site">
       <div hidden />
       <main className={"min-h-screen \x62g-background"}>
         <ImportedHeader />
