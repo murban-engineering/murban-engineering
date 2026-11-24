@@ -1,0 +1,2352 @@
+import {
+  ShieldCheck,
+  Gauge,
+  GitBranch,
+  Database,
+  FlaskConical,
+  Waves,
+  Magnet,
+  Sparkles,
+  Droplets,
+  Radio,
+  Paintbrush,
+  TestTube,
+  ScanLine,
+  Thermometer,
+  Cpu,
+  TrendingUp,
+  Flame,
+  Wind,
+  GaugeCircle,
+  Activity,
+  Hammer,
+  Wrench,
+  Plane,
+  Ruler,
+  ShoppingCart,
+  Settings,
+  Building,
+  Zap,
+  Factory,
+  Truck,
+  Ship,
+  Fuel,
+  Award,
+  Target,
+  Eye,
+  Crosshair,
+  Map as MapIcon,
+  Globe,
+  ArrowRight,
+  type LucideIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
+import AnimateOnScroll from "@/components/AnimateOnScroll";
+import modernWhiteBuilding from "@/assets/modern-white-building.jpg";
+import storageTanks from "@/assets/storage-tanks.jpg";
+import modernFactory from "@/assets/modern-factory.jpg";
+import "./Services.css";
+
+type ServiceCardProps = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  onSelect?: () => void;
+  showCTA?: boolean;
+  ctaHref?: string;
+  ctaLabel?: string;
+};
+
+type ServiceItemInput = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  slug?: string;
+};
+
+export type ServiceItem = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  slug: string;
+};
+
+type ServiceDetail = {
+  label: string;
+  breadcrumb: string[];
+  headline: string;
+  description: string;
+  sections?: Array<{
+    title: string;
+    items: string[];
+  }>;
+  relatedServices?: string[];
+};
+
+export const createServiceSlug = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+
+const ServiceCard = ({
+  icon: Icon,
+  title,
+  description,
+  imageSrc,
+  imageAlt,
+  onSelect,
+  showCTA = true,
+  ctaHref = "/contact",
+  ctaLabel = "View service",
+}: ServiceCardProps) => {
+  const trackerIndices = Array.from({ length: 25 }, (_, index) => index + 1);
+  const cardClasses = ["service-card"];
+
+  if (onSelect) {
+    cardClasses.push("service-card--selectable");
+  }
+
+  return (
+    <div
+      className={cardClasses.join(" ")}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (!onSelect) return;
+
+        if (event.key === "Enter" || event.key === " " || event.key === "Space") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      aria-label={onSelect ? title : undefined}
+    >
+      <div className="service-card-container noselect">
+        <div className="service-card-canvas">
+          {trackerIndices.map((index) => (
+            <span
+              key={index}
+              className={`service-card-tracker tr-${index}`}
+              aria-hidden="true"
+            />
+          ))}
+          <article
+            className="service-card-inner"
+            tabIndex={0}
+            aria-label={`${title} service overview`}
+          >
+            <p className="service-card-prompt">Learn more</p>
+            <div className="service-card-header">
+              <Icon className="service-card-icon" aria-hidden="true" strokeWidth={2} />
+              <h3 className="service-card-title">{title}</h3>
+            </div>
+            <div className="mt-4 overflow-hidden rounded-xl border border-border/40 bg-card/40">
+              {imageSrc ? (
+                <img
+                  src={imageSrc}
+                  alt={imageAlt ?? `${title} service image`}
+                  className="h-32 w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  width={640}
+                  height={360}
+                />
+              ) : (
+                <div
+                  className="flex h-32 items-center justify-center border border-dashed border-primary/30 bg-primary/5 px-3 text-center text-xs font-medium uppercase tracking-wide text-primary/80"
+                  aria-label={`${title} image placeholder`}
+                >
+                  {`Image for ${title}`}
+                </div>
+              )}
+            </div>
+            <p className="service-card-description">{description}</p>
+          </article>
+        </div>
+      </div>
+      {showCTA && (
+        <Link to={ctaHref} className="service-card-cta">
+          <span>{ctaLabel}</span>
+          <ArrowRight className="service-card-cta-icon" aria-hidden="true" />
+        </Link>
+      )}
+    </div>
+  );
+};
+
+const serviceCardImages = [
+  "/images/magnetic Flux Leakage 1.jpg",
+  "/images/Pipes.JPG",
+  "/images/DSCN4103.JPG",
+  "/images/DSCN4117.JPG",
+  "/images/DSCF5799.JPG",
+  "/images/DSCN4156.JPG",
+  "/images/0615281f-0698-4990-b2b8-72f600089fd6.jpg",
+  "/images/welder.jpg",
+  "/images/DSCN4103.JPG",
+  "/images/DSCN4156.JPG",
+];
+
+const getServiceCardImage = (index: number) =>
+  serviceCardImages[index % serviceCardImages.length];
+
+const serviceSections = [
+  { id: "general-ndt", label: "General NDT" },
+  { id: "advanced-ndt", label: "Advanced NDT" },
+  { id: "engineering-assessments", label: "Engineering Assessments" },
+  { id: "fabrication-services", label: "Engineering & Fabrication" },
+  { id: "technology-training-partners", label: "Technology & Training Partners" },
+];
+
+const ndtServiceItems: ServiceItemInput[] = [
+  {
+    icon: ShieldCheck,
+    title: "NDT Inspection Services",
+    description: "Full-scope Non-Destructive Testing coverage tailored to your assets and regulations.",
+  },
+  {
+    icon: Gauge,
+    title: "Tank Calibration Services",
+    description: "Accurate volume measurement and tank calibration across all storage configurations.",
+  },
+  {
+    icon: GitBranch,
+    title: "API 570 Piping Inspection and Certification",
+    description: "Piping system inspection for code compliance.",
+  },
+  {
+    icon: Database,
+    title: "API 653 Aboveground Storage Tank Inspection and Certification",
+    description: "Tank integrity inspections that deliver official API 653 certification and reporting.",
+  },
+  {
+    icon: FlaskConical,
+    title: "API 510 Pressure Vessel Inspection",
+    description: "Pressure vessel safety verification with detailed API 510 compliance documentation.",
+  },
+  {
+    icon: Waves,
+    title: "Ultrasonic Flaw Testing C-Scan",
+    description: "Detailed flaw mapping using advanced ultrasonic C-scan imaging techniques.",
+  },
+  {
+    icon: Activity,
+    title: "Ultrasonic Flaw Testing B-Scan",
+    description: "Internal defect detection and profiling delivered through precision B-scan testing.",
+  },
+  {
+    icon: Magnet,
+    title: "Magnetic Particle Testing",
+    description: "Surface flaw detection using powerful magnetic particle inspection methods.",
+  },
+  {
+    icon: Sparkles,
+    title: "Fluorescent Magnet Particle Testing",
+    description: "Crack detection enhanced with fluorescent indicators and ultraviolet inspection.",
+  },
+  {
+    icon: Droplets,
+    title: "Dye Penetrant Testing",
+    description:
+      "Critical PT inspections that reveal surface flaws and discontinuities for safer, more reliable asset performance.",
+  },
+  {
+    icon: Radio,
+    title: "RT Radiographic Services",
+    description: "High-resolution radiographic imaging that uncovers hidden discontinuities without interrupting service.",
+  },
+  {
+    icon: Paintbrush,
+    title: "Paint & Coating Inspection",
+    description: "Checking protective coating thickness and quality to extend asset life.",
+  },
+  {
+    icon: TestTube,
+    title: "Positive Material Identification Testing",
+    description: "Verify alloy composition quickly with positive material identification technology.",
+  },
+  {
+    icon: ScanLine,
+    title: "Phased Array Testing",
+    description: "Advanced phased array ultrasonics for complex geometry and high-resolution flaw detection.",
+  },
+  {
+    icon: Crosshair,
+    title: "3D Laser Scanning Services",
+    description: "High-accuracy spatial data capture for asset management, design planning, and facility maintenance.",
+  },
+  {
+    icon: Thermometer,
+    title: "Thermal Camera Inspection",
+    description: "Thermal imaging surveys that uncover temperature anomalies and emerging issues before they escalate.",
+  },
+  {
+    icon: Cpu,
+    title: "Alternating Current Field Measurement",
+    description: "Advanced electromagnetic inspection that detects and sizes surface cracks with exceptional accuracy.",
+  },
+  {
+    icon: TrendingUp,
+    title: "API 579 Fitness for Service",
+    description: "API 579-based integrity assessments that uncover defects, document risk, and guide repair or replacement decisions.",
+  },
+  {
+    icon: GaugeCircle,
+    title: "API 580 Risk Based Inspection",
+    description: "Risk-based inspection strategies prioritising safety-critical assets and intervals.",
+  },
+  {
+    icon: Flame,
+    title: "Boiler Inspection Services",
+    description: "Thorough inspections that keep boiler systems safe, efficient, and compliant.",
+  },
+  {
+    icon: Wind,
+    title: "Lifting Equipment Thorough Examination and Certification",
+    description: "Safe lifting equipment checks paired with formal certification packages.",
+  },
+  {
+    icon: Zap,
+    title: "Gas Detection",
+    description: "Comprehensive monitoring solutions that detect hazardous gases early and keep worksites compliant.",
+  },
+  {
+    icon: Fuel,
+    title: "Pressure Testing",
+    description: "Verify system strength and tightness through controlled pressure testing.",
+  },
+  {
+    icon: MapIcon,
+    title: "Floormap 3D MFL Scanning",
+    description: "3D magnetic flux leakage scanning that pinpoints tank floor defects with precision.",
+  },
+  {
+    icon: Globe,
+    title: "Sphere Tank Inspections",
+    description: "Inspection of spherical tanks with detailed structural and safety reporting.",
+  },
+  {
+    icon: Settings,
+    title: "Surface Hardness Testing",
+    description: "Measuring metal surface strength to validate fabrication quality and wear resistance.",
+  },
+  {
+    icon: Plane,
+    title: "UAV Inspection",
+    description: "Aerial inspection using drone-based technology to access challenging environments.",
+  },
+];
+
+
+export const ndtServices: ServiceItem[] = ndtServiceItems.map((service) => ({
+  ...service,
+  slug: service.slug ?? createServiceSlug(service.title),
+}));
+
+const fabricationServiceItems: ServiceItemInput[] = [
+  {
+    icon: Ruler,
+    title: "Detailed Engineering",
+    description: "Comprehensive technical plans and documentation.",
+    slug: "detailed-engineering",
+  },
+  {
+    icon: ShoppingCart,
+    title: "Procurement",
+    description: "Sourcing materials for project execution.",
+    slug: "procurement",
+  },
+  {
+    icon: Factory,
+    title: "Fabrication",
+    description: "Precision cutting, welding, and assembly services.",
+    slug: "fabrication",
+  },
+  {
+    icon: Building,
+    title: "Construction and Erection",
+    description: "Safe, code-compliant erection of steel structures, pipelines, and storage tanks.",
+    slug: "construction-and-erection",
+  },
+  {
+    icon: Wrench,
+    title: "Specialised Welding",
+    description: "Certified TIG, MIG, SMAW, and SAW welding that safeguards structural integrity.",
+    slug: "specialized-welding",
+  },
+  {
+    icon: Paintbrush,
+    title: "Surface Preparation and Paint Works",
+    description: "Surface cleaning and industrial paint coating.",
+    slug: "surface-preparation-and-paint-works",
+  },
+];
+
+
+export const fabricationServices: ServiceItem[] = fabricationServiceItems.map((service) => ({
+  ...service,
+  slug: service.slug ?? createServiceSlug(service.title),
+}));
+
+export const allServices: ServiceItem[] = [...ndtServices, ...fabricationServices];
+
+const serviceBySlug = new Map(allServices.map((service) => [service.slug, service]));
+
+const serviceSlugAliasMap: Record<string, string> = {
+  [createServiceSlug("API 653 Above Ground Storage Tank Inspection")]: createServiceSlug(
+    "API 653 Aboveground Storage Tank Inspection and Certification",
+  ),
+  [createServiceSlug("API 580 Risk Based Service")]: createServiceSlug(
+    "API 580 Risk Based Inspection",
+  ),
+  [createServiceSlug("API 580 Risked Based Service")]: createServiceSlug(
+    "API 580 Risk Based Inspection",
+  ),
+  [createServiceSlug("Boiler Inspection Service")]: createServiceSlug(
+    "Boiler Inspection Services",
+  ),
+  [createServiceSlug("Lifting Equipment Through Examination and Certification")]:
+    createServiceSlug("Lifting Equipment Thorough Examination and Certification"),
+  [createServiceSlug("Paint and Coating Inspection")]: createServiceSlug(
+    "Paint & Coating Inspection",
+  ),
+  [createServiceSlug("PMI Testing")]: createServiceSlug(
+    "Positive Material Identification Testing",
+  ),
+  [createServiceSlug("Pressure Testing")]: createServiceSlug("Pressure Testing"),
+  [createServiceSlug("Gas Detection")]: createServiceSlug("Gas Detection"),
+  [createServiceSlug("UAV Drone Inspection")]: createServiceSlug("UAV Inspection"),
+  [createServiceSlug("API 570 Piping Inspection")]: createServiceSlug(
+    "API 570 Piping Inspection and Certification",
+  ),
+  [createServiceSlug("Paint & Coating Inspection")]: createServiceSlug(
+    "Paint & Coating Inspection",
+  ),
+};
+
+export const serviceDetails: Record<string, ServiceDetail> = {
+  "NDT Inspection Services": {
+    label: "Comprehensive NDT Programmes",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Full-Scope Non-Destructive Testing",
+    description:
+      "MURBAN ENGINEERING LTD delivers complete non-destructive testing (NDT) programmes that combine certified inspectors, proven procedures, and advanced instrumentation. From in-service assets to fabrication projects, we help facilities document condition, validate compliance, and schedule maintenance with confidence.",
+    sections: [
+      {
+        title: "Inspection Capabilities",
+        items: [
+          "Programme management that coordinates phased array, ultrasonic, radiographic, magnetic particle, and dye penetrant testing.",
+          "API-certified inspectors who apply standardised procedures to piping, tanks, pressure vessels, and structural components.",
+          "Digital reporting that captures readings, imagery, and traceable documentation for audits and regulators.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Detects defects early so corrective action can be taken before safety or production is impacted.",
+          "Supports regulatory compliance and client specifications through certified procedures and documentation.",
+          "Optimises maintenance budgets by targeting repairs based on quantitative condition data.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Phased Array Testing",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Ultrasonic Flaw Testing B-Scan",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "RT Radiographic Services",
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+    ],
+  },
+  "Phased Array Testing": {
+    label: "Phased Array Testing",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "PAUT Phased Array Ultrasonic Testing",
+    description:
+      "Phased array testing is an advanced ultrasonic inspection technique employed by MURBAN ENGINEERING LTD to provide accurate flaw detection and characterisation in materials and components. Our phased array testing services are highly effective in identifying and assessing defects, discontinuities, and structural issues. We deliver detailed reports and recommendations, enabling you to take proactive measures to maintain asset integrity and safety.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 580 Risk Based Service",
+          "Above Ground Storage Tank Inspection and Certification",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "Magnetic Particle Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnet Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "UAV Inspection",
+          "Ultrasonic Flaw Testing C Scan",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Provides detailed and accurate defect detection in welds and materials.",
+          "Offers rapid inspection capabilities, reducing downtime and inspection costs.",
+          "Enhances inspection coverage and sensitivity compared to conventional UT methods.",
+          "Supports compliance with industry standards and regulatory requirements.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Ultrasonic Flaw Testing C Scan",
+      "Ultrasonic Thickness Measurement",
+      "Alternating Current Field Measurement",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Thermal Camera Inspection",
+      "UAV Inspection",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Service",
+    ],
+  },
+  "Pressure Testing": {
+    label: "Pressure Testing",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Pressure Testing Services",
+    description:
+      "Pressure testing is a crucial element in ensuring the integrity of pressure vessels and systems. MURBAN ENGINEERING LTD specialises in conducting rigorous pressure tests that verify the strength and reliability of your equipment. Our tests adhere to industry standards and regulations, providing you with the assurance that your pressure systems are operating safely and efficiently.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 653 Above Ground Storage Tank Inspection",
+          "API 580 Risk Based Inspection",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "RT Radiographic Services",
+          "Magnetic Particle Testing",
+          "Surface Hardness Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnet Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint & Coating Inspection",
+          "Positive Material Identification Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "UAV Inspection",
+          "Fabrication and Engineering Services",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection and Certification",
+          "Gas Detection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Validates the integrity and reliability of pressure vessels and systems.",
+          "Helps identify weaknesses or leaks before they become critical issues.",
+          "Ensures compliance with regulatory requirements and industry standards.",
+          "Enhances safety by preventing potential accidents or equipment failures.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection and Certification",
+      "Ultrasonic Thickness Measurement",
+      "Phased Array Testing",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Thermal Camera Inspection",
+      "SIMS Tank Inspection Software",
+    ],
+  },
+  "API 579 Fitness for Service": {
+    label: "API 579 Fitness for Service Assessment",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "API 579 Fitness for Service Assessments",
+    description:
+      "MURBAN ENGINEERING LTD offers Fitness for Service assessments based on API 579 standards, a critical service for evaluating the structural integrity of equipment and assets. Our highly experienced team uses advanced techniques to assess the fitness of your equipment, identifying defects, damage, or anomalies that may compromise safety or performance. We provide comprehensive reports and actionable recommendations to support informed repair, maintenance, or replacement decisions while keeping your operations compliant and resilient.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 653 Aboveground Storage Tank Inspection and Certification",
+          "API 580 Risk Based Inspection",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "RT Radiographic Services",
+          "Magnetic Particle Testing",
+          "Surface Hardness Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnetic Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "Pressure Testing",
+          "UAV Inspection",
+          "Fabrication and Engineering Services",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection and Certification",
+          "Gas Detection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Evaluates the structural integrity of equipment, piping, and tanks to determine fitness for continued service.",
+          "Uses advanced engineering assessments to evaluate defects, damage, and degradation.",
+          "Provides a systematic approach to assess the remaining strength and reliability of components.",
+          "Helps optimise maintenance decisions, minimising downtime and maximising asset lifespan.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 653 Aboveground Storage Tank Inspection and Certification",
+      "API 580 Risk Based Inspection",
+      "Ultrasonic Thickness Measurement",
+      "Floormap 3D MFL Scanning",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "Pressure Testing",
+      "SIMS Tank Inspection Software",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+    ],
+  },
+  "API 580 Risk Based Inspection": {
+    label: "API 580 Risk Based Inspection",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "API 580 Risk-Based Inspection (RBI)",
+    description:
+      "MURBAN ENGINEERING LTD's Risk-Based Inspection (RBI) services are designed to help you proactively manage and mitigate risks in your equipment and assets. Compliant with industry-standard API 580, our RBI approach involves data-driven assessments to identify potential hazards and prioritise maintenance activities. By leveraging our comprehensive RBI evaluations, you can efficiently allocate resources, reduce the likelihood of unexpected failures, and enhance safety and compliance across your operations.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 580 Risk Based Inspection",
+          "API 580 Risk Based Service",
+          "API 653 Aboveground Storage Tank Inspection and Certification",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "RT Radiographic Services",
+          "Magnetic Particle Testing",
+          "Surface Hardness Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnet Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "Pressure Testing",
+          "UAV Drone Inspection",
+          "Fabrication and Engineering Services",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection",
+          "Gas Detection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Prioritises inspection activities based on risk assessment, optimising resources.",
+          "Helps identify and mitigate potential sources of failure before they occur.",
+          "Enhances asset reliability and extends equipment lifespan.",
+          "Complies with industry standards and regulatory requirements.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 579 Fitness for Service",
+      "API 653 Aboveground Storage Tank Inspection and Certification",
+      "Boiler Inspection Services",
+      "Floormap 3D MFL Scanning",
+      "SIMS Tank Inspection Software",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "UAV Inspection",
+      "Ultrasonic Thickness Measurement",
+      "Alternating Current Field Measurement",
+    ],
+  },
+  "API 510 Pressure Vessel Inspection": {
+    label: "API 510 Pressure Vessel Inspection",
+    breadcrumb: ["Home", "Services", "API 510 Pressure Vessel Inspection"],
+    headline: "API 510 PRESSURE VESSEL Inspection: Ensuring SAFETY & Reliability",
+    description:
+      "MURBAN ENGINEERING LTD is your trusted partner for API 510 inspection services, dedicated to ensuring the safety, reliability, and compliance of your pressure vessels. With comprehensive expertise and commitment to excellence, we deliver unmatched inspection solutions tailored to meet your specific needs.",
+    sections: [
+      {
+        title: "Why MURBAN ENGINEERING LTD for API 510 Inspection?",
+        items: [
+          "Industry Expertise: Our team of certified inspectors boasts extensive experience and expertise in API standards, guaranteeing thorough assessments and reliable results.",
+          "Regulatory Compliance: We adhere strictly to industry regulations and standards, ensuring that your pressure vessels meet all necessary requirements for safe operation.",
+          "Customised Approach: MURBAN ENGINEERING LTD understands that each facility has unique needs. That's why we customise our inspection plans to fit your operational requirements, optimising efficiency and minimising disruptions.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 570 Piping Inspection and Certification",
+      "API 653 Aboveground Storage Tank Inspection and Certification",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+      "Pressure Testing",
+      "Ultrasonic Thickness Measurement",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Thermal Camera Inspection",
+      "UAV Drone Inspection",
+      "3D Laser Scanning Services",
+      "SIMS Tank Inspection Software",
+    ],
+  },
+  "API 570 Piping Inspection and Certification": {
+    label: "API 570 Piping Inspection & Certification",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "API 570 Piping Inspection and Certification",
+    description:
+      "At MURBAN ENGINEERING LTD, we recognise the critical role that API 570 Piping Inspection plays in maintaining the integrity and safety of your industrial piping systems. API 570, developed by the American Petroleum Institute (API), is the industry standard for inspecting, certifying, and ensuring the reliability of piping systems. Piping is the lifeline of various industries, including petrochemical, oil and gas, refining, and more, where safety and efficiency are paramount.",
+    sections: [
+      {
+        title: "The Significance of API 570 Inspection",
+        items: [
+          "Our API 570 Piping Inspection services are designed to meticulously assess your piping systems for corrosion, leaks, defects, and structural issues. Over time, these factors can compromise the safety and performance of your piping infrastructure. With API 570 inspections, we catch these issues early, preventing costly downtime, environmental incidents, and safety hazards. Moreover, API 570 compliance is essential for meeting regulatory requirements, maintaining operational licences, and ensuring the safe and legal operation of your facilities.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 580 Risked Based Service",
+      "Boiler Inspection Service",
+      "Lifting Equipment Through Examination and Certification",
+      "RT Radiographic Services",
+      "Magnetic Particle Testing",
+      "Surface Hardness Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Floormap 3D MFL Scanning",
+      "Paint and Coating Inspection",
+      "PMI Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Calibration Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Drone Inspection",
+      "Fabrication and Engineering Services",
+      "Ultrasonic Flaw Testing C Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection",
+      "Gas Detection",
+    ],
+  },
+  "API 653 Aboveground Storage Tank Inspection and Certification": {
+    label: "API 653 Aboveground Storage Tank Inspection",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "API 653 Aboveground Storage Tank Inspection and Certification",
+    description:
+      "MURBAN ENGINEERING LTD specialises in API 653 Aboveground Storage Tank (AST) Inspection and Certification services to safeguard the integrity, safety, and compliance of your storage assets. Our certified team applies the American Petroleum Institute's API 653 standard to identify corrosion, leaks, structural deficiencies, and other conditions that can compromise tank performance, helping you maintain regulatory compliance and operational reliability.",
+    sections: [
+      {
+        title: "Why API 653 Inspection Matters",
+        items: [
+          "Identifies hazards and defects early, enabling corrective action before they escalate into failures or environmental incidents.",
+          "Supports regulatory compliance so facilities can maintain operating licences and meet enforced API 653 requirements.",
+          "Extends tank service life, minimising costly replacements and maximising return on infrastructure investments.",
+        ],
+      },
+      {
+        title: "Our API 653 Inspection Process",
+        items: [
+          "Certified inspectors execute detailed visual examinations supported by non-destructive testing (NDT) techniques.",
+          "Precise thickness measurements and assessments of shells, bottoms, roofs, nozzles, and welds against API 653 criteria.",
+          "Comprehensive reporting that classifies findings and recommends repairs, alterations, replacements, or monitoring strategies.",
+        ],
+      },
+      {
+        title: "Advantages of MURBAN ENGINEERING LTD's API 653 Service",
+        items: [
+          "Confidently demonstrate compliance with industry standards and regulatory obligations.",
+          "Prevent catastrophic failures and environmental releases by detecting risks before they escalate.",
+          "Improve asset longevity with data-driven decisions that optimise maintenance and lifecycle planning.",
+          "Gain actionable reports that inform budgeting, repair prioritisation, and proactive tank management.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Service",
+      "Boiler Inspection Service",
+      "Lifting Equipment Through Examination and Certification",
+      "RT Radiographic Services",
+      "Magnetic Particle Testing",
+      "Surface Hardness Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Floormap 3D MFL Scanning",
+      "Paint and Coating Inspection",
+      "PMI Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Calibration Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Drone Inspection",
+      "Fabrication and Engineering Services",
+      "Ultrasonic Flaw Testing C Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection",
+      "Gas Detection",
+    ],
+  },
+  "Alternating Current Field Measurement": {
+    label: "Alternating Current Field Measurement (ACFM)",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Alternating Current Field Measurement (ACFM)",
+    description:
+      "MURBAN Inspection and NDT introduces ACFM (Alternating Current Field Measurement), an advanced electromagnetic inspection for detecting and sizing surface cracks and defects with unparalleled accuracy. Our cutting-edge technology ensures high sensitivity, efficiency, and non-contact inspection capabilities, revolutionising your industry's NDT processes.",
+    sections: [
+      {
+        title: "Service Highlights",
+        items: [
+          "Advanced electromagnetic inspection precisely detects and sizes surface-breaking cracks and defects.",
+          "High-sensitivity sensors and efficient scanning routines streamline comprehensive coverage of critical assets.",
+          "Immediate digital data capture supports rapid interpretation and informed maintenance decisions.",
+          "Non-contact inspection keeps technicians safe while preserving coatings and minimising surface preparation.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "High sensitivity for sub-surface defect detection",
+          "Versatile applications in various industries",
+          "Rapid inspections and immediate data analysis",
+          "Quantitative sizing for informed maintenance planning",
+          "Non-contact technology for enhanced safety and efficiency",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 579 Fitness for Service",
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 580 Risked Based Service",
+      "Boiler Inspection Service",
+      "Lifting Equipment Through Examination and Certification",
+      "RT Radiographic Services",
+      "Magnetic Particle Testing",
+      "Surface Hardness Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Floormap 3D MFL Scanning",
+      "Paint and Coating Inspection",
+      "PMI Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Calibration Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Drone Inspection",
+      "Fabrication and Engineering Services",
+      "Ultrasonic Flaw Testing C Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection",
+      "Gas Detection",
+    ],
+  },
+  "RT Radiographic Services": {
+    label: "RT Radiographic Services",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "RT Radiographic Services",
+    description:
+      "Radiographic Testing (RT) is a vital non-destructive testing method employed by MURBAN ENGINEERING LTD to provide insights into the internal condition of materials and structures. Our experienced technicians use advanced radiographic technology to detect and analyse potential defects, discontinuities, or material irregularities. We offer precise assessments and recommendations, enabling you to make informed decisions about maintenance, repair, or replacement, ensuring the ongoing safety and reliability of your assets.",
+    sections: [
+      {
+        title: "What Our Radiographic Testing Delivers",
+        items: [
+          "High-resolution imaging of welds, castings, and critical components to reveal hidden discontinuities.",
+          "Certified radiography technicians who tailor exposure techniques to component geometry and project requirements.",
+          "Actionable reports that clearly classify indications and outline mitigation steps for continued safe service.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Provides detailed internal imaging of materials for defect detection.",
+          "Identifies cracks, voids, and other internal anomalies with high accuracy.",
+          "Enables evaluation of material integrity without damaging the sample.",
+          "Supports quality control and assurance in manufacturing and construction.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Alternating Current Field Measurement",
+      "Ultrasonic Thickness Measurement",
+      "UAV Inspection",
+      "Thermal Camera Inspection",
+      "Paint & Coating Inspection",
+      "Positive Material Identification Testing",
+    ],
+  },
+  "Paint & Coating Inspection": {
+    label: "Paint & Coating Inspection",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Paint & Coating Inspection Services",
+    description:
+      "At MURBAN ENGINEERING LTD, we specialise in Paint and Coating Inspection services, which are essential for maintaining the longevity and performance of assets. Our skilled inspectors ensure that coatings are applied correctly, adhere properly, and meet quality standards. With our services, you can trust that your assets are protected from corrosion and environmental factors, ultimately reducing maintenance costs and extending their lifespan.",
+    sections: [
+      {
+        title: "Comprehensive Coating Quality Assurance",
+        items: [
+          "Verify surface preparation, environmental conditions, and application techniques against coating specifications before work proceeds.",
+          "Measure dry film thickness, adhesion, and continuity so each layer delivers the intended corrosion protection.",
+          "Provide detailed reporting with photographic evidence, defect categorisation, and corrective recommendations for warranty-ready documentation.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Ensures proper application and adhesion of coatings for corrosion protection.",
+          "Detects defects such as cracks, blisters, and uneven coverage early.",
+          "Enhances durability and longevity of painted surfaces.",
+          "Supports compliance with coating specifications and industry standards.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 580 Risk Based Inspection",
+      "Boiler Inspection Services",
+      "Lifting Equipment Thorough Examination and Certification",
+      "RT Radiographic Services",
+      "Magnetic Particle Testing",
+      "Surface Hardness Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Floormap 3D MFL Scanning",
+      "Positive Material Identification Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Calibration Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Inspection",
+      "Fabrication",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection and Certification",
+      "Gas Detection",
+    ],
+  },
+  "Boiler Inspection Services": {
+    label: "Boiler Inspection Services",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Boiler Inspection Services",
+    description:
+      "Boilers are critical components in various industries, and MURBAN ENGINEERING LTD's Boiler Inspection Services are dedicated to ensuring their safety and efficiency. Our expert inspectors conduct meticulous examinations to detect issues, corrosion, and wear and tear. We provide comprehensive reports and recommendations to address any identified problems, ensuring that your boilers operate at peak performance while meeting stringent safety standards.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 653 Aboveground Storage Tank Inspection and Certification",
+          "API 580 Risk Based Inspection",
+          "Boiler Inspection Services",
+          "Lifting Equipment Thorough Examination and Certification",
+          "RT Radiographic Services",
+          "Magnetic Particle Testing",
+          "Surface Hardness Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnet Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint & Coating Inspection",
+          "Positive Material Identification Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "Pressure Testing",
+          "UAV Inspection",
+          "Fabrication and Engineering Services",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection and Certification",
+          "Gas Detection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Ensures compliance with regulatory requirements for boiler safety and performance.",
+          "Identifies corrosion, erosion, and other defects that can affect boiler efficiency.",
+          "Helps prevent accidents and unplanned downtime by detecting potential issues early.",
+          "Supports optimisation of boiler maintenance schedules and prolongs equipment lifespan.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection and Certification",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+      "Pressure Testing",
+      "Ultrasonic Thickness Measurement",
+      "Thermal Camera Inspection",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Phased Array Testing",
+    ],
+  },
+  "Magnetic Particle Testing": {
+    label: "MPI Magnetic Particle Testing",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "MPI Magnetic Particle Testing",
+    description:
+      "Magnetic Particle Testing (MPI) is a trusted non-destructive testing method used to reveal surface and near-surface defects in ferromagnetic components. MURBAN ENGINEERING LTD deploys MPI to safeguard the reliability of critical assets, combining precision field practices with expert evaluation so you receive clear data and actionable recommendations to address any detected flaws.",
+    sections: [
+      {
+        title: "What Our MPI Service Delivers",
+        items: [
+          "Detects cracks, laps, seams, and other discontinuities that originate at or near the surface of ferromagnetic materials.",
+          "Provides thorough inspection coverage with experienced technicians who tailor magnetisation techniques to your component geometry.",
+          "Pairs MPI with complementary B-scan ultrasonic flaw testing and corrosion mapping to validate findings and plan corrective action.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Detects surface and near-surface defects in ferromagnetic materials.",
+          "Provides rapid and reliable results for defect identification and characterisation.",
+          "Supports safety and reliability by detecting cracks, weld discontinuities, and fatigue damage.",
+          "Facilitates compliance with industry standards and regulatory requirements.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 580 Risk Based Service",
+      "Boiler Inspection Service",
+      "Lifting Equipment Through Examination and Certification",
+      "RT Radiographic Services",
+      "Surface Hardness Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Floormap 3D MFL Scanning",
+      "Paint and Coating Inspection",
+      "PMI Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Calibration Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Drone Inspection",
+      "Fabrication and Engineering Services",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection",
+      "Gas Detection",
+    ],
+  },
+  "Surface Hardness Testing": {
+    label: "Surface Hardness Testing",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Surface Hardness Testing",
+    description:
+      "Surface Hardness Testing is a critical service offered by MURBAN ENGINEERING LTD to assess the hardness of materials used in your equipment and structures. Our testing methods ensure that materials meet the required hardness specifications and quality standards for their intended applications. By utilising our Surface Hardness Testing services, you can make informed decisions about material selection, quality control, and overall asset reliability.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 580 Risk Based Service",
+          "Above Ground Storage Tank Inspection and Certification",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "Magnetic Particle Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnet Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "UAV Inspection",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection",
+          "Surface Hardness Testing",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Provides accurate measurement of material hardness for quality control.",
+          "Helps identify material strength and suitability for specific applications.",
+          "Enables early detection of material degradation or wear, preventing failures.",
+          "Supports optimisation of material selection and manufacturing processes.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "PMI Testing",
+      "Floormap 3D MFL Scanning",
+      "Thermal Camera Inspection",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Service",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection",
+      "Above Ground Storage Tank Inspection and Certification",
+      "UAV Inspection",
+    ],
+  },
+  "Dye Penetrant Testing": {
+    label: "Dye Penetrant Testing (PT)",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Dye Penetrant Testing (PT)",
+    description:
+      "Dye Penetrant Testing (PT) is a critical inspection method employed by MURBAN ENGINEERING LTD to detect surface flaws and discontinuities in various materials. Our skilled technicians apply penetrant solutions and meticulously examine components for defects. We provide comprehensive assessments and recommendations, enabling you to maintain the integrity and safety of your assets with confidence.",
+    sections: [
+      {
+        title: "Service Highlights",
+        items: [
+          "Critical surface flaw and discontinuity detection across non-porous components.",
+          "Skilled technicians apply penetrant systems and carefully evaluate defect indications.",
+          "Comprehensive assessments with clear recommendations to improve integrity and safety decisions.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Detects surface-breaking defects in non-porous materials with high sensitivity.",
+          "Provides rapid results with straightforward interpretation of defect indications.",
+          "Supports quality control and assurance in manufacturing and maintenance.",
+          "Enables detection of defects in complex geometries and hard-to-access areas.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 580 Risk Based Inspection",
+      "Boiler Inspection Services",
+      "Lifting Equipment Thorough Examination and Certification",
+      "Magnetic Particle Testing",
+      "Fluorescent Magnetic Particle Testing",
+      "Floormap 3D MFL Scanning",
+      "Paint and Coating Inspection",
+      "PMI Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Calibration Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "UAV Drone Inspection",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection and Certification",
+    ],
+  },
+  "Ultrasonic Flaw Testing C-Scan": {
+    label: "Ultrasonic Flaw Testing C-Scan",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Ultrasonic Flaw Testing C-Scan (Corrosion Mapping)",
+    description:
+      "Ultrasonic flaw testing C-scan delivers a high-resolution corrosion map of critical assets, allowing integrity teams to visualise wall loss, pitting, and defects before they lead to failures. MURBAN ENGINEERING LTD's specialists utilise advanced ultrasonic instrumentation and experienced interpretation to provide the actionable insights needed to keep storage tanks, pipelines, and process equipment operating safely and efficiently.",
+    sections: [
+      {
+        title: "Advantages",
+        items: [
+          "Provides detailed corrosion mapping for accurate assessment of asset condition.",
+          "Helps prioritise maintenance and repair activities based on severity.",
+          "Enables proactive corrosion management to extend asset lifespan.",
+          "Supports compliance with regulatory requirements and industry standards.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Ultrasonic Thickness Measurement",
+      "Phased Array Testing",
+      "Floormap 3D MFL Scanning",
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+    ],
+  },
+  "Ultrasonic Flaw Testing B-Scan": {
+    label: "Ultrasonic Flaw Testing B-Scan",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Ultrasonic Flaw Testing B-Scan (Profile Mapping)",
+    description:
+      "B-scan ultrasonic testing provides a cross-sectional profile of wall thickness, laminations, and internal damage. MURBAN ENGINEERING LTD leverages B-scan techniques to map corrosion, erosion, and remaining life in piping systems, pressure boundaries, and structural weldments.",
+    sections: [
+      {
+        title: "Service Highlights",
+        items: [
+          "Generates side-view imaging that reveals wall loss depth and contour changes in real time.",
+          "Identifies localised thinning, pitting, and inclusions that may be missed with spot thickness readings.",
+          "Integrates with phased array and C-scan data sets to validate findings across large surface areas.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Supports run-repair-replace decisions with quantified measurements of remaining wall thickness.",
+          "Minimises intrusive inspections by characterising defects without cutting or disassembling equipment.",
+          "Improves safety by highlighting critical flaw growth trends before they escalate to failure.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Ultrasonic Flaw Testing C-Scan",
+      "Ultrasonic Thickness Measurement",
+      "Phased Array Testing",
+      "Alternating Current Field Measurement",
+      "API 570 Piping Inspection and Certification",
+      "API 579 Fitness for Service",
+    ],
+  },
+  "Fluorescent Magnet Particle Testing": {
+    label: "Fluorescent Magnetic Particle Testing",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Fluorescent Magnetic Particle Testing",
+    description:
+      "Fluorescent Magnetic Particle Testing is a specialised technique employed by MURBAN ENGINEERING LTD to enhance the detection of flaws in critical components. Our services go beyond traditional magnetic particle testing, using fluorescent technology to improve flaw detection and characterisation. We help you identify and address defects promptly, ensuring the reliability and safety of your equipment.",
+    sections: [
+      {
+        title: "Service Highlights",
+        items: [
+          "Combines ultraviolet illumination with high-contrast magnetic particles to expose surface and near-surface flaws.",
+          "Delivers enhanced visibility that allows technicians to characterise indications with confidence.",
+          "Supports rapid maintenance decisions so issues are resolved before they impact asset availability.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Detects surface and near-surface defects with high sensitivity.",
+          "Provides rapid and reliable inspection results, reducing downtime.",
+          "Enhances safety by identifying potential failure points early.",
+          "Supports quality assurance and compliance with industry standards.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 580 Risk Based Service",
+      "Boiler Inspection Service",
+      "Lifting Equipment Thorough Examination and Certification",
+      "RT Radiographic Services",
+      "Magnetic Particle Testing",
+      "Surface Hardness Testing",
+      "Dye Penetrant Testing",
+      "Floormap 3D MFL Scanning",
+      "Paint and Coating Inspection",
+      "PMI Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Calibration Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Drone Inspection",
+      "Fabrication and Engineering Services",
+      "Ultrasonic Flaw Testing C Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection",
+      "Gas Detection",
+    ],
+  },
+  "Floormap 3D MFL Scanning": {
+    label: "Floormap 3D MFL Scanning",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Floormap 3D MFL Tank Floor Mapping",
+    description:
+      "MURBAN ENGINEERING LTD offers advanced Floormap 3D MFL scanning services for precise assessment of tank floors. We employ cutting-edge technology to create accurate 3D maps of tank bottoms, enabling our inspectors to pinpoint corrosion and defects with exceptional clarity. The actionable insights we deliver support targeted maintenance programmes that extend tank life and safeguard structural integrity.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 653 Above Ground Storage Tank Inspection",
+          "API 580 Risk Based Service",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "RT Radiographic Services",
+          "Magnetic Particle Testing",
+          "Surface Hardness Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnet Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "Pressure Testing",
+          "UAV Drone Inspection",
+          "Fabrication and Engineering Services",
+          "Ultrasonic Flaw Testing C Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection",
+          "Gas Detection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Detects corrosion, erosion, and other defects in tank bottoms with high fidelity.",
+          "Provides comprehensive coverage of large tank surfaces, minimising blind spots.",
+          "Enables early detection of defects, preventing costly repairs or replacements.",
+          "Supports proactive maintenance planning for asset integrity management.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+      "Ultrasonic Flaw Testing C Scan",
+      "Ultrasonic Thickness Measurement",
+      "3D Laser Scanning Services",
+      "SIMS Tank Inspection Software",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "UAV Inspection",
+    ],
+  },
+  "Positive Material Identification Testing": {
+    label: "Positive Material Identification (PMI) Testing",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Positive Material Identification (PMI) Testing",
+    description:
+      "Positive Material Identification (PMI) Testing is a critical service offered by MURBAN ENGINEERING LTD to confirm the composition of materials used in your equipment and structures. Our PMI testing ensures material compatibility with intended applications and compliance with industry standards. With our expertise, you can maintain the quality and safety of your assets, preventing material-related issues and ensuring long-term reliability. These services represent MURBAN ENGINEERING LTD's commitment to providing comprehensive asset integrity solutions that prioritise safety, compliance, and operational efficiency across a wide range of industries.",
+    sections: [
+      {
+        title: "What Our PMI Testing Provides",
+        items: [
+          "Confirms alloy chemistry on-site or in the shop using advanced XRF and OES analysers for immediate answers.",
+          "Validates that incoming materials, in-service components, and repairs meet specification before they enter service.",
+          "Documents traceability and compliance for audits, quality programmes, and regulatory reviews.",
+          "Supports integrity teams with rapid mobilisation, experienced technicians, and clear acceptance criteria.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Verifies material composition to ensure suitability for intended use.",
+          "Helps prevent material mix-ups and potential quality issues.",
+          "Supports compliance with industry standards and regulatory requirements.",
+          "Enhances product quality and reliability through accurate material identification.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 570 Piping Inspection and Certification",
+      "API 579 Fitness for Service",
+      "API 653 Aboveground Storage Tank Inspection and Certification",
+      "API 580 Risk Based Inspection",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Surface Hardness Testing",
+      "RT Radiographic Services",
+      "Ultrasonic Thickness Measurement",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "3D Laser Scanning Services",
+      "Thermal Camera Inspection",
+      "UAV Drone Inspection",
+      "SIMS Tank Inspection Software",
+    ],
+  },
+  "Lifting Equipment Thorough Examination and Certification": {
+    label: "Lifting Equipment Thorough Examination and Certification",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Lifting Equipment Examination & Certification",
+    description:
+      "MURBAN ENGINEERING LTD offers thorough examinations and certification for lifting equipment, crucial in industries where safety and load-bearing capacity are paramount. Our certified inspectors meticulously assess the condition and performance of lifting equipment, ensuring compliance with industry standards. With our services, you can trust that your lifting equipment is safe, reliable, and ready to perform the tasks it was designed for.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 580 Risk Based Service",
+          "Above Ground Storage Tank Inspection and Certification",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "Magnetic Particle Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnetic Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "UAV Inspection",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Ensures the safety and integrity of lifting equipment in compliance with regulations.",
+          "Identifies wear, fatigue, and structural defects that may compromise safety.",
+          "Helps prevent accidents and injuries by detecting potential failure points early.",
+          "Supports regulatory compliance and minimises downtime through proactive maintenance.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnetic Particle Testing",
+      "Ultrasonic Thickness Measurement",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Alternating Current Field Measurement",
+      "Thermal Camera Inspection",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+      "Boiler Inspection Services",
+    ],
+  },
+  "Thermal Camera Inspection": {
+    label: "Thermal Camera Inspection",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Thermal Camera Inspection",
+    description:
+      "MURBAN ENGINEERING LTD uses thermal cameras for inspections, allowing us to detect temperature anomalies and potential issues in your equipment and structures. Our thermal camera inspections provide valuable insights into the condition of critical components, helping you identify problems before they become major concerns. With our services, you can enhance the safety and reliability of your assets while minimising downtime and maintenance costs.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 580 Risk Based Inspection",
+          "Above Ground Storage Tank Inspection and Certification",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "Magnetic Particle Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnetic Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "UAV Inspection",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection and Certification",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Identifies temperature anomalies indicative of potential defects or failures.",
+          "Enables early detection of equipment malfunctions, preventing costly downtime.",
+          "Supports predictive maintenance strategies to optimise asset performance.",
+          "Enhances safety by identifying overheating components or electrical issues.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "Floormap 3D MFL Scanning",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "UAV Inspection",
+      "Paint and Coating Inspection",
+    ],
+  },
+  "UAV Inspection": {
+    label: "UAV Inspection",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "UAV Drone Inspection Services",
+    description:
+      "MURBAN ENGINEERING LTD offers UAV (Unmanned Aerial Vehicle) inspection services, which provide efficient and cost-effective aerial assessments of assets. Our UAVs are equipped with high-resolution cameras and sensors, allowing us to capture valuable data from hard-to-reach areas. With our UAV Inspection services, you can access comprehensive visual data and reports, enabling informed decision-making for maintenance and asset management.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 580 Risk Based Service",
+          "Above Ground Storage Tank Inspection and Certification",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "Fitness for Service",
+          "Magnetic Particle Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnetic Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "Ultrasonic Flaw Testing C Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Provides access to hard-to-reach areas, enhancing safety.",
+          "Enables quick and efficient inspection, reducing downtime.",
+          "Offers high-resolution imaging for detailed analysis.",
+          "Allows for comprehensive inspections without disrupting operations.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Thermal Camera Inspection",
+      "3D Laser Scanning Services",
+      "Floormap 3D MFL Scanning",
+      "Ultrasonic Flaw Testing C-Scan",
+      "Phased Array Testing",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+      "Tank Calibration Services",
+    ],
+  },
+  "Tank Calibration Services": {
+    label: "Tank Calibration Service",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Precision Tank Calibration & Volume Verification",
+    description:
+      "Tank calibration is essential for ensuring accurate volume measurements and compliance with industry standards. MURBAN ENGINEERING LTD specialises in Tank Calibration Services, utilising precise methods and equipment to calibrate your tanks accurately. Our services help you maintain compliance, minimise discrepancies in volume measurements, and ensure efficient operations in various industries, including oil and gas, chemicals, and more.",
+    sections: [
+      {
+        title: "Advantages",
+        items: [
+          "Ensures precise measurement accuracy for equipment and machinery using laser technology.",
+          "Facilitates calibration of dimensional, angular, and positional parameters with high precision.",
+          "Enhances quality control by minimising measurement errors and ensuring traceability.",
+          "Supports compliance with industry standards and regulatory requirements.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 653 Above Ground Storage Tank Inspection",
+      "API 580 Risk Based Service",
+      "Boiler Inspection Service",
+      "Lifting Equipment Thorough Examination and Certification",
+      "RT Radiographic Services",
+      "Magnetic Particle Testing",
+      "Surface Hardness Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Floormap 3D MFL Scanning",
+      "Paint and Coating Inspection",
+      "PMI Testing",
+      "SIMS Tank Inspection Software",
+      "Sphere Tank Inspections",
+      "3D Laser Scanning Services",
+      "Tank Inspection Database",
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Drone Inspection",
+      "Fabrication and Engineering Services",
+      "Ultrasonic Flaw Testing C Scan",
+      "Phased Array Testing",
+      "Ultrasonic Thickness Measurement",
+      "Visual Inspection",
+      "API 510 Pressure Vessel Inspection",
+      "API 570 Piping Inspection",
+      "Gas Detection",
+    ],
+  },
+  "3D Laser Scanning Services": {
+    label: "3D Laser Scanning Services",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "High-Fidelity 3D Laser Scanning & Digital Twin Capture",
+    description:
+      "MURBAN ENGINEERING LTD provides 3D Laser Scanning Services, a cutting-edge technology that allows for precise measurements and mapping of structures, assets, and environments. Our state-of-the-art laser scanners capture detailed data, enabling accurate assessments for asset management, design planning, and facility maintenance. With our 3D Laser Scanning Services, you gain invaluable insights into your assets' conditions, facilitating informed decision-making and optimised operations.",
+    sections: [
+      {
+        title: "Advantages",
+        items: [
+          "Captures comprehensive and detailed 3D representations of objects, structures, or environments.",
+          "Enables accurate measurement, analysis, and visualisation of complex geometries.",
+          "Supports various applications including reverse engineering, as-built documentation, and quality control.",
+          "Enhances efficiency in design, manufacturing, and construction processes by providing accurate spatial data.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Tank Calibration Services",
+      "SIMS Tank Inspection Software",
+      "Tank Inspection Database",
+      "Floormap 3D MFL Scanning",
+      "Thermal Camera Inspection",
+      "UAV Drone Inspection",
+      "Ultrasonic Flaw Testing C Scan",
+      "Ultrasonic Thickness Measurement",
+      "Magnetic Particle Testing",
+      "Dye Penetrant Testing",
+      "Fluorescent Magnet Particle Testing",
+      "Alternating Current Field Measurement",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+    ],
+  },
+  "Gas Detection": {
+    label: "Gas Detection",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Comprehensive Industrial Gas Detection",
+    description:
+      "Safety is paramount in any industry, and MURBAN ENGINEERING LTD's Gas Detection services are engineered to identify and mitigate gas-related risks in your operations. We deploy state-of-the-art detection technology to monitor gas levels continuously and provide timely alerts whenever potential hazards arise, helping create safer work environments and minimising the risk of leaks or exposure.",
+    sections: [
+      {
+        title: "Comprehensive Gas Monitoring Solutions",
+        items: [
+          "Deploy fixed and portable detection systems tailored to plant processes and hazardous areas.",
+          "Continuously track gas concentrations with real-time alarms that trigger immediate response protocols.",
+          "Integrate monitoring outputs with control rooms, shutdown systems, and safety procedures for rapid mitigation.",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Ensures a safe working environment by identifying hazardous gases before they escalate.",
+          "Helps prevent accidents and potential leaks, mitigating operational and safety risks.",
+          "Enables early detection of gas leaks, minimising downtime and associated losses.",
+          "Supports compliance with regulatory requirements and industry standards.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Thermal Camera Inspection",
+      "Pressure Testing",
+      "UAV Inspection",
+      "API 579 Fitness for Service",
+      "API 580 Risk Based Inspection",
+      "Ultrasonic Thickness Measurement",
+      "Phased Array Testing",
+      "Positive Material Identification Testing",
+    ],
+  },
+  "Detailed Engineering": {
+    label: "Fabrication & Engineering Services",
+    breadcrumb: ["Home", "Industry Solutions", "Fabrication & Engineering"],
+    headline: "Detailed Engineering & Project Documentation",
+    description:
+      "Our experienced engineers provide comprehensive design and drafting services, including structural analysis, layout plans, material selection, and comprehensive project documentation. We ensure that all designs comply with the highest quality and safety standards in the industry.",
+    relatedServices: [
+      "Procurement",
+      "Fabrication",
+      "Construction and Erection",
+      "Specialised Welding",
+      "Surface Preparation and Paint Works",
+      "API 570 Piping Inspection and Certification",
+      "API 653 Aboveground Storage Tank Inspection and Certification",
+    ],
+  },
+  Fabrication: {
+    label: "Fabrication Services",
+    breadcrumb: ["Home", "Industry Solutions", "Fabrication & Engineering"],
+    headline: "Precision Shop Fabrication & Assembly",
+    description:
+      "We specialise in the fabrication of complex and heavy structural steel components, such as platforms, supports, tanks, and pressure vessels. Our state-of-the-art facilities are equipped with advanced technology, allowing us to provide precision fabrication services to meet the specific needs of each project.",
+    sections: [
+      {
+        title: "Our Services Include",
+        items: [
+          "Steel Fabrication: Structural steel, plate work, beams, frames, and custom steel components.",
+          "Pressure Vessel Fabrication: Designed and manufactured to meet industry codes and regulations, particularly for the Oil and Gas sector.",
+          "Pipe Spooling & Prefabrication: Pipework solutions that meet the rigorous demands of the energy sector.",
+          "Hydrates and Specialty Welding: Utilisation of advanced welding techniques for intricate and specialised requirements.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Detailed Engineering",
+      "Procurement",
+      "Specialised Welding",
+      "Surface Preparation and Paint Works",
+      "Construction and Erection",
+      "Pressure Testing",
+    ],
+  },
+  "Construction and Erection": {
+    label: "Fabrication & Engineering Services",
+    breadcrumb: ["Home", "Industry Solutions", "Fabrication & Engineering"],
+    headline: "Construction and Erection",
+    description:
+      "We offer full erection services for large-scale industrial projects, ensuring the safe and efficient assembly of steel structures, pipelines, and storage tanks. Our skilled team ensures all structures are erected with precision and comply with the latest health, safety, and regulatory standards.",
+    sections: [
+      {
+        title: "What We Deliver",
+        items: [
+          "Turnkey erection services tailored to complex, large-scale industrial facilities.",
+          "Safe and efficient assembly of steel structures, pipelines, and storage tanks.",
+          "Project controls that keep schedules on track while meeting rigorous quality benchmarks.",
+        ],
+      },
+      {
+        title: "Safety & Compliance First",
+        items: [
+          "Certified rigging and lifting teams that prioritise zero-incident execution.",
+          "Comprehensive safety planning aligned with the latest health, safety, and regulatory standards.",
+          "Detailed documentation and inspection reports that verify every stage of construction meets governance and client requirements.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Detailed Engineering",
+      "Procurement",
+      "Fabrication",
+      "Specialised Welding",
+      "Surface Preparation and Paint Works",
+    ],
+  },
+  "Specialised Welding": {
+    label: "Specialised Welding",
+    breadcrumb: ["Home", "Industry Solutions", "Fabrication & Engineering"],
+    headline: "Specialised Welding & Code Compliance",
+    description:
+      "Our fabrication team executes TIG, MIG, SMAW, and submerged arc welding to ensure every component is built for strength and reliability. Each weld is delivered under strict adherence to API welding codes and the governing project standards so quality is never in doubt.",
+    sections: [
+      {
+        title: "Specialised Welding",
+        items: [
+          "Certified craftsmen proficient in TIG, MIG, SMAW, and submerged arc processes for complex fabrications.",
+          "Technique selection and procedure control that safeguard the integrity of tanks, piping, and structural work.",
+          "Coordinated shop and field teams ready to deliver critical welds where they are needed most.",
+        ],
+      },
+      {
+        title: "Code Compliance & Quality",
+        items: [
+          "Strict alignment with API welding codes and applicable international standards.",
+          "Procedure qualification records and welder certifications maintained for every project.",
+          "Integrated inspections and documentation packages that verify weld quality from root to cap.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Fabrication",
+      "Detailed Engineering",
+      "Surface Preparation and Paint Works",
+      "Construction and Erection",
+      "Pressure Testing",
+      "Phased Array Testing",
+      "Magnetic Particle Testing",
+    ],
+  },
+  "Sphere Tank Inspections": {
+    label: "Sphere Tank Inspections",
+    breadcrumb: ["Home", "Industry Solutions", "Services We Offer"],
+    headline: "Specialised Sphere Tank Inspection Services",
+    description:
+      "MURBAN ENGINEERING LTD specialises in conducting sphere tank inspections to ensure their structural integrity and compliance with industry standards. Sphere tanks are commonly used for storing various materials, and our expert inspectors meticulously examine these structures to identify any corrosion, structural issues, or potential hazards. We provide comprehensive reports and recommendations to guarantee the safety and reliability of your sphere tanks, minimising operational risks.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Alternating Current Field Measurement",
+          "API 579 Fitness for Service",
+          "API 653 Above Ground Storage Tank Inspection",
+          "API 580 Risk Based Service",
+          "Boiler Inspection Service",
+          "Lifting Equipment Thorough Examination and Certification",
+          "RT Radiographic Services",
+          "Magnetic Particle Testing",
+          "Surface Hardness Testing",
+          "Dye Penetrant Testing",
+          "Fluorescent Magnetic Particle Testing",
+          "Floormap 3D MFL Scanning",
+          "Paint and Coating Inspection",
+          "PMI Testing",
+          "SIMS Tank Inspection Software",
+          "Sphere Tank Inspections",
+          "3D Laser Scanning Services",
+          "Tank Calibration Services",
+          "Tank Inspection Database",
+          "Thermal Camera Inspection",
+          "Pressure Testing",
+          "UAV Drone Inspection",
+          "Fabrication and Engineering Services",
+          "Ultrasonic Flaw Testing C-Scan",
+          "Phased Array Testing",
+          "Ultrasonic Thickness Measurement",
+          "Visual Inspection",
+          "API 510 Pressure Vessel Inspection",
+          "API 570 Piping Inspection",
+          "Gas Detection",
+        ],
+      },
+      {
+        title: "Advantages",
+        items: [
+          "Identifies defects or anomalies in tank structures, preventing failures.",
+          "Ensures compliance with industry regulations and safety standards.",
+          "Optimises maintenance schedules, reducing operational costs.",
+          "Enhances asset integrity management for long-term reliability.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "API 653 Above Ground Storage Tank Inspection",
+      "Floormap 3D MFL Scanning",
+      "SIMS Tank Inspection Software",
+      "Tank Calibration Services",
+      "3D Laser Scanning Services",
+      "UAV Drone Inspection",
+      "Ultrasonic Thickness Measurement",
+      "Phased Array Testing",
+    ],
+  },
+  "Fabrication and Engineering Services": {
+    label: "Fabrication & Engineering Services",
+    breadcrumb: [
+      "Home",
+      "Industry Solutions",
+      "Fabrication & Engineering Services",
+    ],
+    headline: "Turnkey Fabrication & Engineering Delivery",
+    description:
+      "MURBAN ENGINEERING LTD provides end-to-end fabrication and engineering support, combining detailed design, controlled shop fabrication, surface finishing, and specialist welding with coordinated field erection. Our multidisciplinary teams keep complex industrial projects on schedule while meeting strict safety, quality, and compliance targets. We integrate planning, execution, and quality control so clients receive dependable, ready-for-service assets.",
+    sections: [
+      {
+        title: "Services We Offer",
+        items: [
+          "Detailed Engineering",
+          "Procurement",
+          "Fabrication",
+          "Specialised Welding",
+          "Construction and Erection",
+          "Surface Preparation and Paint Works",
+        ],
+      },
+      {
+        title: "Procurement Capability",
+        items: [
+          "Sourcing high-quality raw materials and components from trusted suppliers.",
+          "Verifying that every delivery meets technical specifications and project codes.",
+          "Coordinating logistics for timely material availability at fabrication shops and job sites.",
+          "Optimising spend through strategic supplier partnerships and cost control.",
+        ],
+      },
+    ],
+    relatedServices: [
+      "Detailed Engineering",
+      "Procurement",
+      "Fabrication",
+      "Specialised Welding",
+      "Construction and Erection",
+      "Surface Preparation and Paint Works",
+    ],
+  },
+  "Surface Preparation and Paint Works": {
+    label: "Surface Preparation and Paint Works",
+    breadcrumb: ["Home", "Industry Solutions", "Fabrication & Engineering"],
+    headline: "Surface Preparation & Protective Coating Systems",
+    description:
+      "MURBAN ENGINEERING LTD provides comprehensive surface preparation and coating services for all fabricated steelwork, pipelines, and structures. We use advanced methods like abrasive blasting and chemical treatment to ensure the best adhesion for coatings.\n\nWe then apply high-performance coatings, ensuring long-term protection against corrosion, especially in harsh environments such as offshore and industrial plants.",
+    relatedServices: [
+      "Fabrication",
+      "Specialised Welding",
+      "Procurement",
+      "Paint & Coating Inspection",
+      "Detailed Engineering",
+      "Construction and Erection",
+    ],
+  },
+  Procurement: {
+    label: "Fabrication & Engineering Services",
+    breadcrumb: ["Home", "Industry Solutions", "Fabrication & Engineering"],
+    headline: "Procurement & Supply Chain Assurance",
+    description:
+      "MURBAN ENGINEERING LTD handles the procurement of high-quality raw materials and components, sourcing from trusted suppliers and ensuring that all materials meet the technical specifications for each project. We ensure timely delivery and cost efficiency in all procurement processes.",
+    relatedServices: [
+      "Detailed Engineering",
+      "Fabrication",
+      "Construction and Erection",
+      "Specialised Welding",
+      "Surface Preparation and Paint Works",
+      "Pressure Testing",
+    ],
+  },
+};
+
+export const getServiceBySlug = (slug: string) => serviceBySlug.get(slug);
+
+export const getServiceSlugForName = (name: string) => {
+  const normalized = name.trim();
+  if (!normalized) return undefined;
+
+  const baseSlug = createServiceSlug(normalized);
+  if (serviceBySlug.has(baseSlug)) {
+    return baseSlug;
+  }
+
+  const aliasSlug = serviceSlugAliasMap[baseSlug];
+  if (aliasSlug && serviceBySlug.has(aliasSlug)) {
+    return aliasSlug;
+  }
+
+  const directMatch = allServices.find(
+    (service) => service.title.toLowerCase() === normalized.toLowerCase(),
+  );
+
+  return directMatch?.slug;
+};
+
+export const getServiceDetailBySlug = (slug: string) => {
+  const service = getServiceBySlug(slug);
+  return service ? serviceDetails[service.title] : undefined;
+};
+
+// Service cluster definitions
+const generalNdtTitles = [
+  "NDT Inspection Services",
+  "Ultrasonic Flaw Testing B-Scan",
+  "Ultrasonic Flaw Testing C-Scan",
+  "Magnetic Particle Testing",
+  "Fluorescent Magnet Particle Testing",
+  "Dye Penetrant Testing",
+  "RT Radiographic Services",
+  "Surface Hardness Testing",
+  "Pressure Testing",
+  "Paint & Coating Inspection",
+  "Gas Detection",
+];
+
+const advancedNdtTitles = [
+  "Phased Array Testing",
+  "Alternating Current Field Measurement",
+  "Floormap 3D MFL Scanning",
+  "UAV Inspection",
+  "3D Laser Scanning Services",
+  "Thermal Camera Inspection",
+  "Tank Calibration Services",
+];
+
+const engineeringAssessmentTitles = [
+  "API 579 Fitness for Service",
+  "API 580 Risk Based Inspection",
+  "Positive Material Identification Testing",
+  "API 510 Pressure Vessel Inspection",
+  "API 570 Piping Inspection and Certification",
+  "API 653 Aboveground Storage Tank Inspection and Certification",
+  "Boiler Inspection Services",
+  "Lifting Equipment Thorough Examination and Certification",
+  "Sphere Tank Inspections",
+];
+
+const generalNdtServices = allServices.filter(s => generalNdtTitles.includes(s.title));
+const advancedNdtServices = allServices.filter(s => advancedNdtTitles.includes(s.title));
+const engineeringAssessmentServices = allServices.filter(s => engineeringAssessmentTitles.includes(s.title));
+
+const technologyTrainingPartnerLogos = [
+  "/images/Screenshot 2026-04-27 203523.png",
+  "/images/Screenshot 2026-04-27 203527.png",
+  "/images/Screenshot 2026-04-27 203532.png",
+  "/images/Screenshot 2026-04-27 203536.png",
+  "/images/Screenshot 2026-04-27 203541.png",
+  "/images/Screenshot 2026-04-27 203545.png",
+  "/images/Screenshot 2026-04-27 203549.png",
+  "/images/Screenshot 2026-04-27 203554.png",
+];
+
+const Services = () => {
+  const navigate = useNavigate();
+
+  const serviceClusters = [
+    {
+      id: "general-ndt",
+      label: "General Non-Destructive Testing (NDT)",
+      description: "Foundational techniques used across all industries to detect surface and subsurface flaws without damaging the asset.",
+      services: generalNdtServices,
+    },
+    {
+      id: "advanced-ndt",
+      label: "Advanced NDT & Specialised Technologies",
+      description: "Used in high-precision or high-risk environments where early flaw detection and detailed assessments are critical.",
+      services: advancedNdtServices,
+    },
+    {
+      id: "engineering-assessments",
+      label: "Engineering Assessments & Certification",
+      description: "For in-depth structural assessments, compliance evaluations, and performance validation.",
+      services: engineeringAssessmentServices,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen pt-20 bg-background relative">
+      {/* Hero Section with Industrial Image */}
+      <section
+        id="services-hero"
+        className="relative overflow-hidden pt-24 pb-32 md:pt-28 md:pb-40"
+      >
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src={modernWhiteBuilding}
+            alt="Modern engineering infrastructure"
+            className="h-full w-full object-cover"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            width={1920}
+            height={1080}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-background/45 to-background/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-background/20" />
+          <div className="absolute inset-0 bg-gradient-mesh opacity-30" />
+        </div>
+
+        <div className="container relative z-10 mx-auto px-4 text-left">
+          <AnimateOnScroll direction="left">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-primary mb-8">
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse-soft" />
+              NDT & Asset Integrity Services
+            </span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold mb-8 leading-[1.1] text-foreground tracking-tight">
+              Precision Inspection &<br />Engineering Services
+            </h1>
+            <p className="text-lg md:text-xl max-w-3xl text-muted-foreground leading-relaxed mb-12">
+              Comprehensive Non-Destructive Testing and Advanced NDT support to keep critical infrastructure running at peak performance.
+            </p>
+            
+            {/* Navigation to sections */}
+            <nav
+              aria-label="Services sections"
+              className="flex flex-col items-start justify-center gap-3"
+            >
+              <div className="flex flex-wrap items-center justify-start gap-3">
+                {serviceSections.map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="group inline-flex items-center gap-2 rounded-2xl border border-border/50 px-6 py-3 text-sm font-medium text-foreground backdrop-blur-md shadow-sm transition-all duration-300 hover:bg-primary/5 hover:border-primary/30 hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <span>{section.label}</span>
+                  </a>
+                ))}
+              </div>
+            </nav>
+          </AnimateOnScroll>
+        </div>
+      </section>
+
+      {/* Service Clusters */}
+      {serviceClusters.map((cluster, clusterIndex) => (
+        <section
+          key={cluster.id}
+          id={cluster.id}
+          className={`relative py-28 ${clusterIndex % 2 === 0 ? "bg-background" : "bg-gradient-subtle"}`}
+        >
+          <div className="container relative z-10 mx-auto px-4">
+            <AnimateOnScroll direction={clusterIndex % 2 === 0 ? "right" : "left"}>
+              <div className="mx-auto mb-20 max-w-4xl text-center">
+                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                  Service Cluster {clusterIndex + 1}
+                </span>
+                <h2 className="mt-5 text-4xl md:text-5xl font-semibold text-foreground tracking-tight">
+                  {cluster.label}
+                </h2>
+                <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto">
+                  {cluster.description}
+                </p>
+              </div>
+            </AnimateOnScroll>
+            <div className="services-grid services-grid--selectable">
+              {cluster.services.map((service, serviceIndex) => (
+                <ServiceCard
+                  key={service.title}
+                  icon={service.icon}
+                  title={service.title}
+                  description={service.description}
+                  onSelect={() => navigate(`/services/${service.slug}`)}
+                  ctaHref={`/services/${service.slug}`}
+                  imageSrc={getServiceCardImage(serviceIndex)}
+                  imageAlt={service.title}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
+
+      {/* Fabrication Services Section */}
+      <section
+        id="fabrication-services"
+        className="relative overflow-hidden py-28"
+      >
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src={storageTanks}
+            alt="Industrial storage tanks"
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+            width={1920}
+            height={1080}
+          />
+          <div className="absolute inset-0 bg-background/97" />
+          <div className="absolute inset-0 bg-gradient-mesh opacity-20" />
+        </div>
+
+        <div className="container relative z-10 mx-auto px-4">
+          <AnimateOnScroll direction="left">
+            <div className="mx-auto mb-20 max-w-3xl text-center">
+              <span className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                Engineering & Fabrication
+              </span>
+              <h2 className="murban-engineering-wordmark mt-5 text-4xl tracking-tight !text-black md:text-5xl">
+                <span style={{ color: "#A60D0F" }}>MURBAN</span>{" "}
+                <span style={{ color: "#213164" }}>ENGINEERING LTD</span>{" "}
+                <span className="font-sans text-foreground normal-case tracking-tight">Fabrication Services</span>
+              </h2>
+              <p className="mt-5 text-lg text-muted-foreground">
+                From detailed engineering to turnkey fabrication and installation
+              </p>
+            </div>
+          </AnimateOnScroll>
+          <div className="services-grid">
+            {fabricationServices.map((service, serviceIndex) => (
+              <ServiceCard
+                key={service.title}
+                icon={service.icon}
+                title={service.title}
+                description={service.description}
+                onSelect={() => navigate(`/services/${service.slug}`)}
+                ctaHref={`/services/${service.slug}`}
+                imageSrc={getServiceCardImage(serviceIndex + 6)}
+                imageAlt={service.title}
+              />
+            ))}
+          </div>
+          <div className="mt-16 text-center">
+            <Button 
+              size="lg"
+              asChild
+              className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 rounded-2xl px-10"
+            >
+              <Link to="/contact">Discuss Your Next Build</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section id="technology-training-partners" className="bg-background py-20">
+        <div className="container mx-auto px-4">
+          <AnimateOnScroll direction="left">
+            <div className="mx-auto max-w-5xl text-center">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+                TECHNOLOGY AND TRAINING PARTNERS
+              </h2>
+            </div>
+          </AnimateOnScroll>
+
+          <div className="relative mt-10 overflow-hidden">
+            <div className="trusted-marquee">
+              {[...technologyTrainingPartnerLogos, ...technologyTrainingPartnerLogos].map((logo, index) => (
+                <div
+                  key={`${logo}-${index}`}
+                  className="flex h-24 w-56 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-card/80 px-6"
+                >
+                  <img
+                    src={logo}
+                    alt="Technology and training partner logo"
+                    className="h-14 w-auto object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section with Image Background */}
+      <section id="services-contact" className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src={modernFactory}
+            alt="Modern industrial factory"
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+            width={1920}
+            height={1080}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/80 to-primary/70" />
+        </div>
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-white mb-6">
+            Contact Our Team
+          </span>
+          <h2 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
+            Let&apos;s Build Something Great Together
+          </h2>
+          <p className="mt-6 max-w-2xl mx-auto text-lg text-white/85 leading-relaxed">
+            Ready to start your next project? Contact our team to discover how MURBAN ENGINEERING LTD&apos;s inspection and engineering experts can bring your vision to life.
+          </p>
+          <Button
+            size="lg"
+            asChild
+            className="mt-10 rounded-2xl bg-white text-secondary px-10 py-6 text-lg font-semibold shadow-xl transition-all duration-300 hover:bg-white/95 hover:shadow-2xl hover:-translate-y-1"
+          >
+            <Link to="/contact">Get in Touch</Link>
+          </Button>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Services;
