@@ -269,7 +269,7 @@ export function TestimonialsSection() {
 
                 <div className="mt-10 grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
                   <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-                    {whereWeWorkCountries.map(({ name, label, isHQ }) => {
+                    {whereWeWorkCountries.map(({ name, label, isHQ = false }) => {
                       const isKenya = name === "Kenya";
                       const highlightColor = isKenya ? "#213164" : "#A60D0F";
 

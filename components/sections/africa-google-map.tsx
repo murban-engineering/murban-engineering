@@ -6,7 +6,9 @@ type AfricaGoogleMapProps = {
   className?: string;
 };
 
-export const whereWeWorkCountries = [
+type WorkCountry = { name: string; label: string; isHQ?: boolean };
+
+export const whereWeWorkCountries: readonly WorkCountry[] = [
   { name: "Burundi", label: "Burundi" },
   { name: "Cameroon", label: "Cameroon" },
   { name: "Central African Republic", label: "Central African Republic" },
@@ -31,7 +33,7 @@ export const whereWeWorkCountries = [
   { name: "Uganda", label: "Uganda" },
   { name: "Zambia", label: "Zambia" },
   { name: "Zimbabwe", label: "Zimbabwe" },
-] as const;
+];
 
 const activeCountrySet: Set<string> = new Set(whereWeWorkCountries.map((country) => country.name));
 

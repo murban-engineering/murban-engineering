@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ShieldCheck,
   Gauge,
@@ -40,13 +42,61 @@ import {
   ArrowRight,
   type LucideIcon,
 } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
-import AnimateOnScroll from "@/components/AnimateOnScroll";
-import modernWhiteBuilding from "@/assets/modern-white-building.jpg";
-import storageTanks from "@/assets/storage-tanks.jpg";
-import modernFactory from "@/assets/modern-factory.jpg";
-import "./Services.css";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+const modernWhiteBuilding = "/images/modern-factory.jpg";
+const storageTanks = "/images/storage-tanks.jpg";
+const modernFactory = "/images/modern-factory.jpg";
+
+function AnimateOnScroll({
+  children,
+  direction,
+}: {
+  children: ReactNode;
+  direction: "left" | "right";
+}) {
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = nodeRef.current;
+    if (!node) return;
+
+    if (!("IntersectionObserver" in window)) {
+      setVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.12 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const initialPosition = direction === "left" ? "-translate-x-6" : "translate-x-6";
+
+  return (
+    <div
+      ref={nodeRef}
+      className={`transition-all duration-700 ease-out motion-reduce:transition-none ${
+        visible ? "translate-x-0 opacity-100" : `${initialPosition} opacity-0`
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
 
 type ServiceCardProps = {
   icon: LucideIcon;
@@ -170,7 +220,7 @@ const ServiceCard = ({
         </div>
       </div>
       {showCTA && (
-        <Link to={ctaHref} className="service-card-cta">
+        <Link href={ctaHref} className="service-card-cta">
           <span>{ctaLabel}</span>
           <ArrowRight className="service-card-cta-icon" aria-hidden="true" />
         </Link>
@@ -2099,7 +2149,7 @@ const technologyTrainingPartnerLogos = [
 ];
 
 const Services = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const serviceClusters = [
     {
@@ -2208,7 +2258,7 @@ const Services = () => {
                   icon={service.icon}
                   title={service.title}
                   description={service.description}
-                  onSelect={() => navigate(`/services/${service.slug}`)}
+                  onSelect={() => router.push(`/services/${service.slug}`)}
                   ctaHref={`/services/${service.slug}`}
                   imageSrc={getServiceCardImage(serviceIndex)}
                   imageAlt={service.title}
@@ -2262,7 +2312,7 @@ const Services = () => {
                 icon={service.icon}
                 title={service.title}
                 description={service.description}
-                onSelect={() => navigate(`/services/${service.slug}`)}
+                onSelect={() => router.push(`/services/${service.slug}`)}
                 ctaHref={`/services/${service.slug}`}
                 imageSrc={getServiceCardImage(serviceIndex + 6)}
                 imageAlt={service.title}
@@ -2275,7 +2325,7 @@ const Services = () => {
               asChild
               className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 rounded-2xl px-10"
             >
-              <Link to="/contact">Discuss Your Next Build</Link>
+              <Link href="/contact">Discuss Your Next Build</Link>
             </Button>
           </div>
         </div>
@@ -2341,7 +2391,7 @@ const Services = () => {
             asChild
             className="mt-10 rounded-2xl bg-white text-secondary px-10 py-6 text-lg font-semibold shadow-xl transition-all duration-300 hover:bg-white/95 hover:shadow-2xl hover:-translate-y-1"
           >
-            <Link to="/contact">Get in Touch</Link>
+            <Link href="/contact">Get in Touch</Link>
           </Button>
         </div>
       </section>
